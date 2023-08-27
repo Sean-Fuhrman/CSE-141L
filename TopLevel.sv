@@ -25,6 +25,7 @@ wire        Data_read_en,	   // data_memory read enable
 		    Data_write_en,	   // data_memory write enable
 			Reg_write_en,	   // reg_file write enable
   			Immediate_en,
+			Select_data,   // select data from data_memory or ALU
 			sc_clr,        // carry reg clear
 			sc_en,	       // carry reg enable
 		    SC_OUT,	       // to carry register
@@ -53,6 +54,7 @@ logic       SC_IN;         // carry register (loop with ALU)
     .Immediate_en (Immediate_en),
     .Data_write_en (Data_write_en),
     .Data_read_en (Data_read_en),
+	.Select_data(Select_data),
     .Reg_write_address (Reg_write_address)
     .Reg_read_address_0 (Reg_read_address_0), //most of the time R0
     .Reg_read_address_1 (Reg_read_address_1), //most of the time R1
@@ -66,6 +68,8 @@ logic       SC_IN;         // carry register (loop with ALU)
 	);
 
 
+assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data from ALU or data_memory 
+
 // reg file
   reg_file #(.W(8),.D(3)) reg_file1 (
     .CLK (CLK),
@@ -77,32 +81,30 @@ logic       SC_IN;         // carry register (loop with ALU)
   output [ W-1:0] Source_0_data, 
   				  Source_1_data,
 	);
-// one pointer, two adjacent read accesses: (optional approach)
-//	.raddrA ({Instruction[5:3],1'b0});
-//	.raddrB ({Instruction[5:3],1'b1});
 
-    assign InA = ReadA;						          // connect RF out to ALU in
-	assign InB = ReadB;
-	assign MEM_WRITE = (Instruction == 9'h111);       // mem_store command
-	assign regWriteValue = load_inst? Mem_Out : ALU_out;  // 2:1 switch into reg_file
+    assign ALU_arg_0 = Source_0_data;  // connect RF out to ALU in
+	assign ALU_arg_1 = Immediate_en? Immediate : Source_1_data;  // connect RF out to ALU in
+
     ALU ALU1  (
-	  .INPUTA  (InA),
-	  .INPUTB  (InB), 
-	  .OP      (Instruction[8:6]),
-	  .OUT     (ALU_out),//regWriteValue),
-	  .SC_IN   ,//(SC_IN),
-	  .SC_OUT  ,
-	  .ZERO ,
-	  .BEVEN
+		.ALU_arg_0(ALU_arg_0),      	// R0 if arithmetic
+    	.ALU_arg_1(ALU_arg_1),       // R1 if arithmetic
+  		.ALU_op_code(Instruction[5:3]),			// ALU opcode, part of microcode
+		.ALU_out(ALU_out),    //0utput reg [7:0] OUT,
+		.SC_IN,  			// shift in/carry in 
+		.SC_OUT,	    // shift out/carry out
+		.ZERO,          // zero out flag
+		.BEVEN,         // LSB of input B = 0
+		.PARITY,        //parity of ALU arg 0
+		.EQUAL,         //ALU arg 0 = ALU arg 1
 	  );
   
 	data_mem data_mem1(
-		.DataAddress  (ReadA)    , 
-		.ReadMem      (1'b1),          //(MEM_READ) ,   always enabled 
-		.WriteMem     (MEM_WRITE), 
-		.DataIn       (memWriteValue), 
-		.DataOut      (Mem_Out)  , 
-		.CLK 		  		     ,
+ 		.Data_address,
+  		.Data_read_en,
+  		.Data_write_en,
+  		.Data_memory_in,
+  		.Data_memory_out
+		.CLK 		  (CLK),
 		.reset		  (start)
 	);
 	

@@ -7,14 +7,16 @@
 //   combinational (unclocked) ALU
 import definitions::*;			  // includes package "definitions"
 module ALU(
-  input [ 7:0] INPUTA,      	  // data inputs
-               INPUTB,
-  input [ 2:0] OP,				  // ALU opcode, part of microcode
+  input [ 7:0] ALU_arg_0,      	// R0 if arithmetic
+               ALU_arg_1,       // R1 if arithmetic
+  input [ 2:0] ALU_op_code,			// ALU opcode, part of microcode
   input        SC_IN,             // shift in/carry in 
-  output logic [7:0] OUT,		  // or:  output reg [7:0] OUT,
-  output logic SC_OUT,			  // shift out/carry out
-  output logic ZERO,              // zero out flag
-  output logic BEVEN              // LSB of input B = 0
+  output logic [7:0] ALU_out,		  // or:  output reg [7:0] OUT,
+  output logic SC_OUT,			   // shift out/carry out
+  output logic ZERO,           // zero out flag
+  output logic BEVEN,          // LSB of input B = 0
+  output logic PARITY,         //parity of ALU arg 0
+  output logic EQUAL,          //ALU arg 0 = ALU arg 1
     );
 	 
   op_mne op_mnemonic;			  // type enum: used for convenient waveform viewing

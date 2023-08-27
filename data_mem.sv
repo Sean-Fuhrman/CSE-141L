@@ -6,11 +6,12 @@
 module data_mem(
   input              CLK,
   input              reset,
-  input [7:0]        DataAddress,
-  input              ReadMem,
-  input              WriteMem,
-  input [7:0]        DataIn,
-  output logic[7:0]  DataOut);
+  input [7:0]        Data_address,
+  input              Data_read_en,
+  input              Data_write_en,
+  input [7:0]        Data_memory_in,
+  output logic[7:0]  Data_memory_out
+  );
 
   logic [7:0] core[256];
 
