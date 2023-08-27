@@ -83,7 +83,7 @@ assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data
 	);
 
     assign ALU_arg_0 = Source_0_data;  // connect RF out to ALU in
-	assign ALU_arg_1 = Immediate_en? Immediate : Source_1_data;  // connect RF out to ALU in
+	assign ALU_arg_1 = Immediate_en? {5'b00000, Immediate} : Source_1_data;  // connect RF out to ALU in
 
     ALU ALU1  (
 		.ALU_arg_0(ALU_arg_0),      	// R0 if arithmetic
@@ -98,6 +98,8 @@ assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data
 		.EQUAL,         //ALU arg 0 = ALU arg 1
 	  );
   
+	assign Data_address = Source_0_data;
+	assign Data_memory_in = Source_1_data;
 	data_mem data_mem1(
  		.Data_address,
   		.Data_read_en,

@@ -2,8 +2,8 @@
 // possible lookup table for PC target
 // leverage a few-bit pointer to a wider number
 module LUT(
-  input[1:0] addr,
-  output logic[15:0] Target
+  input[2:0] addr,
+  output logic[9:0] Target
   );
 
 always_comb 

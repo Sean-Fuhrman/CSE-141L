@@ -17,19 +17,33 @@ always @(posedge CLK)
 	halt <= 0;
   end
   else begin
-    if(PC > 1023)            //if PC reaches 255, halt
+    if(PC > 1023)            //if PC reaches 1024, halt
 	  halt <= 1;		  
-	else if(EQUAL && instruction[6] == 1'b1) 
-	  PC <= PC + 7;
-    else if(jump_en) begin
+	else if(EQUAL && instruction[6] == 1'b1) begin
+		if(instruction[5:3] == 3'b000) begin
+			// ADD IN LOOKUP TABLE!
+			PC <= PC + 2;
+		end else if(instruction[5:3] 3'b111) begin
+			// ADD IN LOOKUP TABLE!
+			PC <= PC - 2;
+		end  
+	end else 
+	  PC <= PC + 1;	     // default == increment by 1
+end
+
+
+
+    
+	
+	/* WHAT IS THIS FOR???
+	else if(jump_en) begin
 	  if(PC>13)
 	    PC <= PC - 14;
 	  else
 	    halt <= 1;       // trap error condition
 	end
-	else 
-	  PC <= PC + 1;	     // default == increment by 1
-  end
+	*/ 
+	
 
 always @()
 endmodule
