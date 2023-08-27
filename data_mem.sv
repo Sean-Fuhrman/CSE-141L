@@ -18,8 +18,8 @@ module data_mem(
 //  initial 
 //    $readmemh("dataram_init.list", my_memory);
   always_comb                     // reads are combinational
-    if(ReadMem) begin
-      DataOut = core[DataAddress];
+    if(Data_read_en) begin
+      Data_memory_out = core[Data_address];
 // optional diagnostic print
 	  $display("Memory read M[%d] = %d",DataAddress,DataOut);
     end else 
@@ -33,8 +33,8 @@ module data_mem(
       core[ 16] <= 254;   // overrides the 0
       core[244] <= 5;
 	end
-    else if(WriteMem) begin
-      core[DataAddress] <= DataIn;
+    else if(Data_write_en) begin
+      core[Data_address] <= Data_memory_in;
 // optional diagnostic print statement
 	  $display("Memory write M[%d] = %d",DataAddress,DataIn);
     end
