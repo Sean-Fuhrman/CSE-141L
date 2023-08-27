@@ -17,9 +17,9 @@ always @(posedge CLK)
 	halt <= 0;
   end
   else begin
-    if(PC>63)
-	  halt <= 1;		 // just a randomly chosen number 
-	else if(branch_en) 
+    if(PC > 1023)            //if PC reaches 255, halt
+	  halt <= 1;		  
+	else if(EQUAL && instruction[6] == 1'b1) 
 	  PC <= PC + 7;
     else if(jump_en) begin
 	  if(PC>13)
@@ -30,5 +30,7 @@ always @(posedge CLK)
 	else 
 	  PC <= PC + 1;	     // default == increment by 1
   end
+
+always @()
 endmodule
         
