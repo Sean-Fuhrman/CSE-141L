@@ -5,7 +5,7 @@
 // issues halt when PC reaches 63
 module PC(
   input init,
-        instruction,
+  input [8:0] instruction,
   		EQUAL,
 		CLK,
   output logic halt,
@@ -19,11 +19,11 @@ always @(posedge CLK)
   else begin
     if(PC > 1023)            //if PC reaches 1024, halt
 	  halt <= 1;		  
-	else if(EQUAL && instruction[6] == 1'b1) begin
+	else if(EQUAL && instruction[8] == 1'b0 && instruction[6] == 1'b1) begin //check it's ariithmetic branching instruction 
 		if(instruction[5:3] == 3'b000) begin
 			// ADD IN LOOKUP TABLE!
 			PC <= PC + 2;
-		end else if(instruction[5:3] 3'b111) begin
+		end else if(instruction[5:3] == 3'b111) begin
 			// ADD IN LOOKUP TABLE!
 			PC <= PC - 2;
 		end  
@@ -44,7 +44,5 @@ end
 	end
 	*/ 
 	
-
-always @()
 endmodule
         

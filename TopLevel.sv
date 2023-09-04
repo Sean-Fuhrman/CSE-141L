@@ -1,8 +1,11 @@
+// Code your design here
 // Create Date:    2018.04.05
 // Design Name:    BasicProcessor
 // Module Name:    TopLevel 
 // CSE141L
-// partial only										   
+// partial only	
+
+
 module TopLevel(		   // you will have the same 3 ports
     input     start,	   // init/reset, active high
 	input     CLK,		   // clock -- posedge used inside design
@@ -16,13 +19,14 @@ module TopLevel(		   // you will have the same 3 ports
          	  ALU_out;       // ALU result
   wire [ 7:0] Reg_write_data,  // data in to reg file
               Data_memory_in,  // data in to data_memory
-	   	      Data_memory_out; // data out from data_memory
+	   	      Data_memory_out,
+					Data_address; // data out from data_memory
   wire [2:0] Reg_write_address, //register write addres
   			 Reg_read_address_0, //register read address, R0 for algorithmic commands
   			 Reg_read_address_1, //register read address, R1 for algorithmic commands
-  			 Immediate,
-wire        Data_read_en,	   // data_memory read enable
-		    Data_write_en,	   // data_memory write enable
+  			 Immediate;
+wire     Data_read_en,	   // data_memory read enable
+		   Data_write_en,	   // data_memory write enable
 			Reg_write_en,	   // reg_file write enable
   			Immediate_en,
 			Select_data,   // select data from data_memory or ALU
@@ -32,7 +36,7 @@ wire        Data_read_en,	   // data_memory read enable
 			ZERO,		   // ALU output = 0 flag
 			BEVEN,		   // ALU ARG 0 is even flag
   			PARTIY,		   // ALU ARG 0 parity is even
-  			EQUAL,		   // ALU input args are equal
+  			EQUAL;		   // ALU input args are equal
 logic[15:0] cycle_ct;	   // standalone; NOT PC!
 logic       SC_IN;         // carry register (loop with ALU)
 
@@ -54,11 +58,11 @@ logic       SC_IN;         // carry register (loop with ALU)
     .Immediate_en (Immediate_en),
     .Data_write_en (Data_write_en),
     .Data_read_en (Data_read_en),
-	.Select_data(Select_data),
-    .Reg_write_address (Reg_write_address)
+	 .Select_data(Select_data),
+    .Reg_write_address (Reg_write_address),
     .Reg_read_address_0 (Reg_read_address_0), //most of the time R0
     .Reg_read_address_1 (Reg_read_address_1), //most of the time R1
-    .Immediate (Immediate),
+    .Immediate (Immediate)
   );
   
 // instruction ROM
@@ -74,12 +78,12 @@ assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data
   reg_file #(.W(8),.D(3)) reg_file1 (
     .CLK (CLK),
     .Reg_write_en,
-  input  [D-1:0] Reg_write_address,
-                 Reg_read_address_0,  //R0 if arithmetic
-                 Reg_read_address_1,  //R1 if arithmetic
-  input  [ W-1:0] Reg_write_data,
-  output [ W-1:0] Source_0_data, 
-  				  Source_1_data,
+    .Reg_write_address,
+    .Reg_read_address_0,  //R0 if arithmetic
+    .Reg_read_address_1,  //R1 if arithmetic
+    .Reg_write_data,
+    .Source_0_data, 
+  	.Source_1_data
 	);
 
     assign ALU_arg_0 = Source_0_data;  // connect RF out to ALU in
@@ -90,12 +94,12 @@ assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data
     	.ALU_arg_1(ALU_arg_1),       // R1 if arithmetic
   		.ALU_op_code(Instruction[5:3]),			// ALU opcode, part of microcode
 		.ALU_out(ALU_out),    //0utput reg [7:0] OUT,
-		.SC_IN,  			// shift in/carry in 
-		.SC_OUT,	    // shift out/carry out
-		.ZERO,          // zero out flag
-		.BEVEN,         // LSB of input B = 0
-		.PARITY,        //parity of ALU arg 0
-		.EQUAL,         //ALU arg 0 = ALU arg 1
+      .SC_IN(SC_IN),  			// shift in/carry in 
+      .SC_OUT(SC_OUT),	    // shift out/carry out
+      .ZERO(ZERO),          // zero out flag
+      .BEVEN(BEVEN),         // LSB of input B = 0
+      .PARITY(PARITY),        //parity of ALU arg 0
+      .EQUAL(EQUAL)         //ALU arg 0 = ALU arg 1
 	  );
   
 	assign Data_address = Source_0_data;
@@ -105,7 +109,7 @@ assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data
   		.Data_read_en,
   		.Data_write_en,
   		.Data_memory_in,
-  		.Data_memory_out
+  		.Data_memory_out,
 		.CLK 		  (CLK),
 		.reset		  (start)
 	);

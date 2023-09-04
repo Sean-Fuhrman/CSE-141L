@@ -23,7 +23,7 @@ module data_mem(
 // optional diagnostic print
 	  $display("Memory read M[%d] = %d",DataAddress,DataOut);
     end else 
-      DataOut = 'bZ;           // tristate, undriven
+      Data_memory_out = 'bZ;           // tristate, undriven
 
   always_ff @ (posedge CLK)		 // writes are sequential
     if(reset) begin

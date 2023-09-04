@@ -5,7 +5,7 @@
 // Revision 2018.01.27
 // Additional Comments: 
 //   combinational (unclocked) ALU
-import definitions::*;			  // includes package "definitions"
+import definitions::*; // includes package "definitions"
 module ALU(
   input [ 7:0] ALU_arg_0,      	// R0 if arithmetic
                ALU_arg_1,       // R1 if arithmetic
@@ -18,13 +18,17 @@ module ALU(
   output logic ZERO,           // zero out flag
   output logic BEVEN,          // LSB of input B = 0
   output logic PARITY,         //parity of ALU arg 0
-  output logic EQUAL,          //ALU arg 0 = ALU arg 1
+  output logic EQUAL          //ALU arg 0 = ALU arg 1
     );
 	 
-  op_mne op_mnemonic;			  // type enum: used for convenient waveform viewing
-	
+
+	wire zero_flag;
+	wire beven_flag;
+	wire parity_flag;
+
   always_comb begin
-    {SC_OUT, OUT} = 0;            // default -- clear carry out and result out
+    {SC_OUT} = 0;            // default -- clear carry out and result out
+	 ALU_out = 0;
     // single instruction for both LSW & MSW
     if(Data_signifier == 0) begin  // arithmetic operation
       case(ALU_op_code) 
@@ -39,21 +43,26 @@ module ALU(
       endcase
     end else begin
       case(Data_op_code)
-        kMOVE:   ALU_out = ALU_arg1;
-        kFLAG:   ALU_out = {4'b0000, ZERO, BEVEN, PARITY, EQUAL};
-        kLOAD:   ALU_OUT = 20;
-        kSTORE:  ALU_OUT = 21;
+        kMOVE:   ALU_out = ALU_arg_1;
+        kFLAG:   begin
+          zero_flag = (ALU_arg_1 == 8'b00000000);
+          beven_flag = (ALU_arg_1[0] == 0);
+          parity_flag = (^ALU_arg_1);
+          ALU_out = {5'b00000, zero_flag, beven_flag, parity_flag};
+        end 
+        kLOAD:   ALU_out = 20;
+        kSTORE:  ALU_out = 21;
       endcase
     end
     //SET FLAGS
     // zero flag set
-    if(ALU_OUT == 8'b00000000) begin
+    if(ALU_out == 8'b00000000) begin
       ZERO = 1'b1;
     end else begin 
       ZERO = 1'b0;
     end
     // even flag set
-    if(ALU_OUT[0] == 0) begin
+    if(ALU_out[0] == 0) begin
       BEVEN = 1'b1;
     end else begin
       BEVEN = 1'b0;
@@ -65,7 +74,7 @@ module ALU(
       EQUAL = 1'b0;
     end
     //parity flag set
-    PARITY = ALU_arg_0[7] ^ ALU_arg_0[6] ^ ALU_arg_0[5] ^ ALU_arg_0[4] ^ ALU_arg_0[3] ^ ALU_arg_0[2] ^ ALU_arg_0[1] ALU_arg_0[0];
+    PARITY = ^ALU_arg_0;
   end
 endmodule
 /*

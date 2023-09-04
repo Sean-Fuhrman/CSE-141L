@@ -12,7 +12,7 @@ module reg_file #(parameter W=8, D=3)(		 // W = data path width; D = pointer wid
                  Reg_read_address_1,  //R1 if arithmetic
   input  [ W-1:0] Reg_write_data,
   output [ W-1:0] Source_0_data, 
-  				  Source_1_data,
+  				  Source_1_data
     );
 
 // W bits wide [W-1:0] and 2**4 registers deep 	 
