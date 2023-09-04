@@ -16,6 +16,7 @@ always @(posedge CLK)
     PC <= 0;
 	halt <= 0;
   end
+  // NEED TO ENSURE INSTRUCTION IS ARITHMETIC COMMAND!
   else begin
     if(PC > 1023)            //if PC reaches 1024, halt
 	  halt <= 1;		  

@@ -25,6 +25,9 @@ module Ctrl (
     Data_read_en = 1'b0;
     data_select = 1'b0;
     Immediate = Instruction[2:0]
+
+    // CHECK IF COMMAND IS A BRANCH OPERATION FIRST!!!- IF SO WE SHOULDN'T DO ANYTHING!
+    
     // check if command is a data operation 
     if(Instruction[8] == 1) begin
       case(Instruction[6:7])

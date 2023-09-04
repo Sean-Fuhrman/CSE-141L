@@ -26,25 +26,7 @@ module ALU(
   always_comb begin
     {SC_OUT, OUT} = 0;            // default -- clear carry out and result out
     // single instruction for both LSW & MSW
-    if(Data_signifier == 0) begin  // arithmetic operation
-      case(ALU_op_code) 
-        kADD:   ALU_out = ALU_arg_0 + ALU_arg_1;
-        kLSL:   ALU_out = ALU_arg_0 << ALU_arg_1;
-        kXOR:   ALU_out = ALU_arg_0 ^ ALU_arg_1;
-        kAND:   ALU_out = ALU_arg_0 & ALU_arg_1;
-        kCMP:   ALU_out = 0;
-        kSET:   ALU_out = ALU_arg_1;
-        kLSR:   ALU_out = ALU_arg_0 >> ALU_arg_1;
-        kSUB:   ALU_out = ALU_arg_0 - ALU_arg_1;
-      endcase
-    end else begin
-      case(Data_op_code)
-        kMOVE:   ALU_out = ALU_arg1;
-        kFLAG:   ALU_out = {4'b0000, ZERO, BEVEN, PARITY, EQUAL};
-        kLOAD:   ALU_OUT = 20;
-        kSTORE:  ALU_OUT = 21;
-      endcase
-    end
+    
     //SET FLAGS
     // zero flag set
     if(ALU_OUT == 8'b00000000) begin
@@ -67,6 +49,28 @@ module ALU(
     //parity flag set
     PARITY = ALU_arg_0[7] ^ ALU_arg_0[6] ^ ALU_arg_0[5] ^ ALU_arg_0[4] ^ ALU_arg_0[3] ^ ALU_arg_0[2] ^ ALU_arg_0[1] ALU_arg_0[0];
   end
+
+  // COMPUTE ALU OUTPUT 
+    if(Data_signifier == 0) begin  // arithmetic operation
+      case(ALU_op_code) 
+        kADD:   ALU_out = ALU_arg_0 + ALU_arg_1;
+        kLSL:   ALU_out = ALU_arg_0 << ALU_arg_1;
+        kXOR:   ALU_out = ALU_arg_0 ^ ALU_arg_1;
+        kAND:   ALU_out = ALU_arg_0 & ALU_arg_1;
+        kCMP:   ALU_out = 0;
+        kSET:   ALU_out = ALU_arg_1;
+        kLSR:   ALU_out = ALU_arg_0 >> ALU_arg_1;
+        kSUB:   ALU_out = ALU_arg_0 - ALU_arg_1;
+      endcase
+    end else begin // data movement operation 
+      case(Data_op_code)
+        kMOVE:   ALU_out = ALU_arg1;
+        kFLAG:   ALU_out = {4'b0000, ZERO, BEVEN, PARITY, EQUAL};
+        kLOAD:   ALU_OUT = 20;
+        kSTORE:  ALU_OUT = 21;
+      endcase
+    end
+    
 endmodule
 /*
   case(OP)
