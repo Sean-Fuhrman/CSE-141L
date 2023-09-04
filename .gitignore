@@ -5,3 +5,4 @@ db
 *.sv.bak
 *.qpf
 *.qsf
+*.rpt

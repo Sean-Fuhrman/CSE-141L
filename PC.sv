@@ -18,7 +18,7 @@ always @(posedge CLK)
   end
   // NEED TO ENSURE INSTRUCTION IS ARITHMETIC COMMAND!
   else begin
-    if(PC > 1023)            //if PC reaches 1024, halt
+    if(PC > 0)            //if PC reaches 1024, halt
 	  halt <= 1;		  
 	else if(EQUAL && instruction[8] == 1'b0 && instruction[6] == 1'b1) begin //check it's ariithmetic branching instruction 
 		if(instruction[5:3] == 3'b000) begin

@@ -57,7 +57,17 @@ module Ctrl (
             Reg_read_address_1 = Instruction[5:3];
         end
       endcase 
-    end else begin
+    end else if(Instruction[8] == 0) begin
+		case(Instruction[5:3]) 
+        kADD:   Reg_write_en = 1'b1;
+        kLSL:   Reg_write_en = 1'b1;
+        kXOR:   Reg_write_en = 1'b1;
+        kAND:   Reg_write_en = 1'b1;
+        kCMP:   Reg_write_en = 1'b0;
+        kSET:   Reg_write_en = 1'b1;
+        kLSR:   Reg_write_en = 1'b1;
+        kSUB:   Reg_write_en = 1'b1;
+      endcase
       Reg_read_address_0 = 3'b000;
       Reg_read_address_1 = 3'b001; 
       Reg_write_address =  3'b010;

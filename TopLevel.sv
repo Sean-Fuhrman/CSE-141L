@@ -72,7 +72,7 @@ logic       SC_IN;         // carry register (loop with ALU)
 	);
 
 
-assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data from ALU or data_memory 
+assign Reg_write_data = Select_data ? Data_memory_out : ALU_out;  // select data from ALU or data_memory 
 
 // reg file
   reg_file #(.W(8),.D(3)) reg_file1 (
@@ -93,6 +93,8 @@ assign Reg_write_data = Select_data ? ALU_out : Data_memory_out;  // select data
 		.ALU_arg_0(ALU_arg_0),      	// R0 if arithmetic
     	.ALU_arg_1(ALU_arg_1),       // R1 if arithmetic
   		.ALU_op_code(Instruction[5:3]),			// ALU opcode, part of microcode
+		.Data_op_code(Instruction[7:6]),
+		.Data_signifier(Instruction[8]),
 		.ALU_out(ALU_out),    //0utput reg [7:0] OUT,
       .SC_IN(SC_IN),  			// shift in/carry in 
       .SC_OUT(SC_OUT),	    // shift out/carry out
