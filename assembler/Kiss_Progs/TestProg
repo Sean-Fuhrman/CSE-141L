@@ -1,0 +1,124 @@
+SETI 1
+MOVE R0 R2
+LSLI 5
+MOVE R0 R2 
+SUBI 2 // R2 now stores 30
+CMP R3 R2   // if R3 = 30 then we are finished
+BADD 111   // 000 corresponds to 1024 in LUT - will set done flag if we are done with writes
+LOAD R6 R3 // store lower 8 bits in R6 
+MOVE R0 R3 // increment R3 (i) by one
+ADDI 1
+MOVE R3, R2
+SETI 0
+MOVE R0 R2
+LOAD R7 R3 // load upper 3 bits into R7
+MOVE R0 R7
+LSLI 5
+MOVE R1 R2
+MOVE R0 R6 // move lower 4 bits into LSB position and store in R0
+LSRI 4
+MOVE R0 R2
+XOR // COMBINE UPPER 8 BITS INTO R2
+FLAG R0 R2 // calculate parity of upper 8 bits
+LSRI 3 
+MOVE R4 R2 // p8 stored as first bit in R4
+MOVE R0 R7 // begin calculating p4: need bits 11-8, 4-2 in one byte
+LSLI 5
+MOVE R1 R2 // R1 stores upper 3 bits 
+MOVE R0 R6 // isolate (grabbing 4th bit)
+LSRI 7
+MOVE R0 R2 // move into correct position on R1
+LSLI 4
+MOVE R0 R2
+XOR 
+MOVE R1 R2
+MOVE R0 R6 // move lower 3 bits into LSB position and store in R0
+LSRI 1
+MOVE R0 R2
+LSLI 5
+MOVE R0 R2
+LSRI 4
+MOVE R0 R2
+XOR // use XOR to combine 7 bits into same byte
+FLAG R0 R2
+LSRI 3
+MOVE R0 R2
+LSLI 1 
+MOVE R0 R2
+MOVE R1 R4
+XOR 
+MOVE R4 R2
+MOVE R0 R7 // calculate p2 (bits 11, 10, 7, 6, 4, 3 , 1)
+LSRI 1 // storing bits 11, 10 in R1
+MOVE R0 R2
+LSLI 6
+MOVE R1 R2
+MOVE R0 R6 // bits 3,4
+LSLI 1 //isolate data
+MOVE R0 R2
+LSRI 6
+MOVE R0 R2
+LSLI 4 // move into correct position for R1
+MOVE R0 R2
+XOR // combine with upper 2 bits and store
+MOVE R1 R2
+MOVE R0 R6 // bits 5,6 (BITS 4, 3)
+LSLI 4 // isolate data
+MOVE R0 R2
+LSRI 6
+MOVE R0 R2
+LSLI 2 // get in correct position 
+MOVE R0 R2
+XOR //combine with upper 4 bits and store 
+MOVE R1 R2
+MOVE R0 R6 // move lowest bit into LSB position and store in R0 (BIT 1)
+LSLI 7 // isolate data
+MOVE R0 R2
+LSRI 7 // get in correct position
+MOVE R0 R2
+XOR 
+FLAG R0 R2 //right shift flag bits by 3 to store p2
+LSRI 3     
+MOVE R0 R2
+LSLI 2 // left shift by 2 to get into correct position in p4
+MOVE R0 R2
+MOVE R1 R4
+XOR
+MOVE R4 R2
+MOVE R0 R7 // CALCULATE P1 // move upper 5 bits into MSB position and store  in R1 // bit 1 (BIT 11)
+LSRI 2 // isolate data
+MOVE R0 R2
+LSLI 7 // move into correct position
+MOVE R1 R2 // store in R1
+MOVE R0 R7 // bit 2 (BIT 9)
+LSLI 7// isolate data
+MOVE R0 R2
+LSRI 1 // move into correct position
+MOVE R0 R2
+XOR // combine with bit 1 and store in R1
+MOVE R1 R2
+MOVE R0 R6 // bit 3 (BIT 7)
+LSLI 1 // isolate data
+MOVE R0 R2
+LSRI 7 // isolate data
+MOVE R0 R2
+LSLI 5 // move into correct position
+MOVE R0 R2
+XOR // combine with bits 1,2 and store in R1
+MOVE R1 R2
+MOVE R0 R6 // bits 4,5 (BITS 4, 5)
+LSLI 3 // isolate data
+MOVE R0 R2
+LSRI 6 // isolate data
+MOVE R0 R2
+LSLI 3 // move into correct position
+MOVE R0 R2
+XOR // combine with bits 1-3 and store in R1
+MOVE R1 R2
+MOVE R0 R6 // move lower 2 bits into LSB position and store in R0 (BITS 7,8)
+LSLI 6 // isolate data
+MOVE R0 R2
+LSRI 6 // move into correct position
+MOVE R0 R2
+XOR // combine all 7 bits onto same byte
+
