@@ -6,7 +6,7 @@
 // R4: 0 (used to index what bit we should be checking (as the first index in our pattern)) j
 // R5: 0 (used to store the byte in dat mem we are accessing) 
 // R6: PATTERN IN ITS LSB! (used to store the 5 bit pattern we are checking- assume in LSB)
-// R7: 32 (used to access dat mem indices 32-35)
+// R7: 0 (FREE USE)
 // PRELOADED MEMORY VALUES:
 // 0-31: stores the string we are checking our pattern against
 // 32: stores the 5 bit pattern we reference (MSB)
@@ -15,11 +15,12 @@
 // 35: 0 stores the # of times this pattern is found, both crossing and not crossing byte boundaries
 
 // STEP ONE: CHECK FOR # OF BYTES PATTERN IS FOUND IN
-// increment R2 to store 32:
+// increment R1 to store 32:
 SETI 1
-MOVE R0 R2
+MOVE R1 R2
 LSLI 5
-CMP R2 R3 // if R3 is equal to 32, then bytes 0-31 have been checked, can move to next step
+move R0 R3
+CMP // if i is equal to 32, then bytes 0-31 have been checked, can move to next step
 BADD 2 // 010 stores the PC corresponding to the first instruction in prework section of step 2 in LUT
 LOAD R5 R3 // stores the byte we are referencing the pattern against
 MOVE R0 R5
@@ -44,8 +45,10 @@ MOVE R0 R5
 LSR
 MOVE R5 R2 // R5 now stores the 5 bits we are comparing our pattern to, in the correct position
 // update indices for next check:
-CMP R5 R6 // if R5, R6 are equal, set i to i+1, j to zero, increment dat_mem[34] by one and return to beginning of step one
-BSUB 1 // corresponds to location where unequal should start in LUT
+MOVE R0 R5
+MOVE R1 R6
+CMP // if R5, R6 are equal, set i to i+1, j to zero, increment dat_mem[34] by one and return to beginning of step one
+BNE 1 // corresponds to location where unequal should start in LUT if unequal set j = j + 1 and continue, or if j = 3, reset j increment i by one
 // IF PATTERN FOUND
 // incrementing dat_mem by one:
 SETI 1 // step 1: store 34 in R5

@@ -77,20 +77,20 @@ public class Instruction{
                 operand = "CMPI";
                 break;
             }
-            case(InstructionValues.BADD): {
-                operand = "BADD";
+            case(InstructionValues.BEQ): {
+                operand = "BEQ";
                 break;
             }
-            case(InstructionValues.BADDI): {
-                operand = "BADDI";
+            case(InstructionValues.BEQI): {
+                operand = "BEQI";
                 break;
             }
-            case(InstructionValues.BSUB): {
-                operand = "BSUB";
+            case(InstructionValues.BNE): {
+                operand = "BNE";
                 break;
             }
-            case(InstructionValues.BSUBI): {
-                operand = "BSUBI";
+            case(InstructionValues.BNEI): {
+                operand = "BNEI";
                 break;
             }
             case(InstructionValues.SET): {
