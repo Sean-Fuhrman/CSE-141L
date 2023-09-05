@@ -32,8 +32,7 @@ initial begin
   for(int j=0; j<8; j++) begin
     DUT.reg_file1.registers[j] = 8'b0;  
   end
-  DUT.reg_file1.registers[0] = 8'b101;
-  DUT.reg_file1.registers[1] = 8'b0;
+
 // launch program in DUT
   #10ns start = 0;
 // Wait for done flag, then display results

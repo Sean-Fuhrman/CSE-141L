@@ -23,7 +23,7 @@ assign  Source_1_data = registers[Reg_read_address_1];
 
 // sequential (clocked) writes 
 always @ (posedge CLK)
-  if (Reg_write_en && Reg_write_address)	                             // && waddr requires nonzero pointer address
+  if (Reg_write_en)	                             // && waddr requires nonzero pointer address
 // if (write_en) if want to be able to write to address 0, as well
     registers[Reg_write_address] <= Reg_write_data;
 

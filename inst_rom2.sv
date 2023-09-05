@@ -11,7 +11,7 @@ module InstROM #(parameter IW = 10, DW = 9)(
   // load machine code program into instruction ROM
 
   initial begin
-	$readmemb("C:/Users/seant/OneDrive/Desktop/CSE-141L/instructions.txt",inst_rom);
+	$readmemb("C:/Users/seant/OneDrive/Desktop/CSE-141L/assembler/Kiss.bin",inst_rom);
   end
 
 // create the array

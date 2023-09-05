@@ -35,8 +35,8 @@ module Ctrl (
         kMOVE:  begin
             Reg_write_en = 1'b1;
             Reg_read_address_0 = 3'b000; //(DON'T CARE)
-            Reg_read_address_1 = Instruction[5:3];
-            Reg_write_address = Instruction[2:0];
+            Reg_read_address_1 = Instruction[2:0];
+            Reg_write_address = Instruction[5:3];
         end
         kFLAG:   begin
             Reg_write_en = 1'b1;
@@ -57,7 +57,7 @@ module Ctrl (
             Reg_read_address_1 = Instruction[5:3];
         end
       endcase 
-    end else if(Instruction[8] == 0) begin
+    end else if(Instruction[6] == 0) begin //not data and not branching
 		case(Instruction[5:3]) 
         kADD:   Reg_write_en = 1'b1;
         kLSL:   Reg_write_en = 1'b1;
