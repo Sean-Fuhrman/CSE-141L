@@ -232,6 +232,7 @@ FLAG R0 R2
 LSRI 3 // right shift 3 to isolate parity
 MOVE R0 R2
 LSLI 4 // left shift 4 to get in correct position for XOR with other parities
+MOVE R0 R2
 MOVE R1 R4
 XOR
 FLAG R0 R2

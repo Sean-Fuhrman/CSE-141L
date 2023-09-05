@@ -10,10 +10,10 @@ public final class InstructionValues {
     public static final int LSRI = 5;
     public static final int XOR = 6;
     public static final int CMP = 7;
-    public static final int BADD = 8;
-    public static final int BADDI = 9;
-    public static final int BSUB = 10;
-    public static final int BSUBI = 11;
+    public static final int BEQ = 8;
+    public static final int BEQI = 9;
+    public static final int BNE = 10;
+    public static final int BNEI = 11;
     public static final int SUB = 12;
     public static final int SUBI = 13;
     public static final int SET = 14;

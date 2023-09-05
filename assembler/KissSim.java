@@ -98,7 +98,7 @@ public class KissSim {
                 if(checkImmediate(3, line)) {
                     opcodeVal = InstructionValues.LSRI;
                 } else {
-                    opcodeVal = InstructionValues.LSL;
+                    opcodeVal = InstructionValues.LSR;
                 }
                 break;
             }
@@ -122,19 +122,19 @@ public class KissSim {
                 }
                 break;
             }
-            case("BAD"): {
-                if(checkImmediate(4, line)) {
-                    opcodeVal = InstructionValues.BADDI;
+            case("BEQ"): {
+                if(checkImmediate(3, line)) {
+                    opcodeVal = InstructionValues.BEQI;
                 } else {
-                    opcodeVal = InstructionValues.BADD;
+                    opcodeVal = InstructionValues.BEQ;
                 }
                 break;
             } 
-            case("BSU"): {
+            case("BNE"): {
                 if(checkImmediate(4, line)) {
-                    opcodeVal = InstructionValues.BSUBI;
+                    opcodeVal = InstructionValues.BNEI;
                 } else {
-                    opcodeVal = InstructionValues.BADD;
+                    opcodeVal = InstructionValues.BNE;
                 }
                 break;
             }
@@ -201,6 +201,11 @@ public class KissSim {
     }
 
     private void executeInstruction(Instruction newInstruction) {
+        if(currInstruction >= 1023) {
+            System.out.println("DONE");
+            System.exit(0);
+        }
+
         switch(newInstruction.getOpcode()) {
             case(InstructionValues.ADD): {
                 registers[2] = registers[1] + registers[0];
@@ -219,8 +224,8 @@ public class KissSim {
                 break;
             }
             case(InstructionValues.LSL): {
-                if(registers[0] == 0) {
-                    registers[2] = 0;
+                if(registers[newInstruction.getOperandOne()] == 0) {
+                    registers[2] = registers[0];
                     break;
                 }
                 String binRep = Integer.toBinaryString(registers[0]);
@@ -241,7 +246,7 @@ public class KissSim {
                 break;
             }
             case(InstructionValues.LSLI): {
-                if(registers[0] == 0) {
+                if(newInstruction.getOperandOne() == 0) {
                     registers[2] = 0;
                     break;
                 } 
@@ -263,10 +268,18 @@ public class KissSim {
                 break;
             }
             case(InstructionValues.LSR): {
+                if (registers[newInstruction.getOperandOne()] == 0) {
+                    registers[2] = registers[0];
+                    break;
+                }
                 registers[2] = registers[0] >> registers[1];
                 break;
             }
             case(InstructionValues.LSRI): {
+                if (newInstruction.getOperandOne() == 0) {
+                    registers[2] = registers[0];
+                    break;
+                }
                 registers[2] = registers[0] >>newInstruction.getOperandOne();
                 break;
             } 
@@ -286,10 +299,10 @@ public class KissSim {
                 if(instructions.size() == currInstruction + 1) {
                     break;
                 }
-                if((registers[0] == registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BSUB)
-                || (registers[0] == registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BSUBI)
-                || (registers[0] != registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BADD)
-                || (registers[0] != registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BSUBI)) {
+                if((registers[0] == registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BNE)
+                || (registers[0] == registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BNEI)
+                || (registers[0] != registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BEQ)
+                || (registers[0] != registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BEQI)) {
                     currInstruction ++;
                 }
                 break;
@@ -298,27 +311,27 @@ public class KissSim {
                 if(instructions.size() == currInstruction + 1) {
                     break;
                 }
-                if((registers[0] == newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BSUB)
-                || (registers[0] == newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BSUBI)
-                || (registers[0] != newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BADD)
-                || (registers[0] != newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BSUBI)) {
+                if((registers[0] == newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BNE)
+                || (registers[0] == newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BNEI)
+                || (registers[0] != newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BEQ)
+                || (registers[0] != newInstruction.getOperandOne() && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BEQI)) {
                     currInstruction ++;
                 }
                 break;
             }
-            case(InstructionValues.BADD): {
+            case(InstructionValues.BEQ): {
                 currInstruction = LUT[newInstruction.getOperandOne()] - 1;
                 break;
             }
-            case(InstructionValues.BADDI): {
+            case(InstructionValues.BEQI): {
                 currInstruction = currInstruction + newInstruction.getOperandOne() - 1;
                 break;
             }
-            case(InstructionValues.BSUB): { 
+            case(InstructionValues.BNE): { 
                 currInstruction = LUT[newInstruction.getOperandOne()] - 1;
                 break;
             }
-            case(InstructionValues.BSUBI): {
+            case(InstructionValues.BNEI): {
                 currInstruction = currInstruction + newInstruction.getOperandOne() - 1;
                 break;
             }
@@ -390,6 +403,12 @@ public class KissSim {
         }
     }
 
+    public void executeFull() {
+        while(true) {
+            executeInstruction(instructions.get(currInstruction));
+        }
+    }
+
 
     public void restartProg() {
         clearMemory();
@@ -437,6 +456,10 @@ public class KissSim {
     
     public void setRegVal(int value, int index) {
         registers[index] = value;
+    }
+
+    public int readMemVal(int index) {
+        return dat_mem[index];
     }
 }
     

@@ -77,8 +77,11 @@ public class KissAsm {
             case("LSR"): return arithmeticInstruction(line, "101");
             case("SET"): return arithmeticInstruction(line,"110");
             case("SUB"): return arithmeticInstruction(line, "111");
-            case("BAD"): return branchInstruction(line, "000");
-            case("BSU"): return branchInstruction(line, "111");
+            case("BEA"): return branchInstruction(line, "000");
+            case("BER"): return branchInstruction(line, "001");
+            case("BNA"): return branchInstruction(line, "010");
+            case("BNR"): return branchInstruction(line, "011");
+            case("BUN"): return branchInstruction(line, "100");
             case("MOV"): return datMoveInstruction(line, "00");
             case("FLA"): return datMoveInstruction(line, "01");
             case("LOA"): return datMoveInstruction(line, "10");
