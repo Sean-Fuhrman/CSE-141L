@@ -54,6 +54,9 @@ always begin   // clock period = 10 Verilog time units
   for(int j=0; j<8; j++) begin
     $display("Register %d = %d",j, DUT.reg_file1.registers[j]);
   end
+  for(int i=0; i<8; i++) begin
+    $display("Memory %d = %d",i, DUT.data_mem1.core[i]);     // clear data_mem
+  end
   #5ns  CLK = 0;
 end
       
