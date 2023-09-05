@@ -5,12 +5,17 @@
 // issues halt when PC reaches 63
 module PC(
   input init,
-        instruction,
+  input [8:0] instruction,
   		EQUAL,
 		CLK,
   output logic halt,
   output logic[ 9:0] PC);
 
+  logic [9:0] LUT_out;
+  LUT LUT1 (
+	.addr(instruction[2:0]),
+	.Target(LUT_out)
+	);
 always @(posedge CLK)
   if(init) begin
     PC <= 0;
@@ -18,34 +23,20 @@ always @(posedge CLK)
   end
   // NEED TO ENSURE INSTRUCTION IS ARITHMETIC COMMAND!
   else begin
-    if(PC > 1023)            //if PC reaches 1024, halt
+    if(PC > 6)            //if PC reaches 1024, halt
 	  halt <= 1;		  
-	else if(EQUAL && instruction[6] == 1'b1) begin
-		if(instruction[5:3] == 3'b000) begin
-			// ADD IN LOOKUP TABLE!
-			PC <= PC + 2;
-		end else if(instruction[5:3] 3'b111) begin
-			// ADD IN LOOKUP TABLE!
-			PC <= PC - 2;
-		end  
+	else if(instruction[8] == 1'b0 && instruction[6] == 1'b1) begin //check it's ariithmetic branching instruction 
+		if(instruction[5:3] == 3'b000 && EQUAL) begin
+			PC <= LUT_out;
+		end else if(instruction[5:3] == 3'b001 && EQUAL) begin
+			PC <= PC + instruction[2:0];
+		end  else if(instruction[5:3] == 3'b010 && ~EQUAL) begin
+			PC <= LUT_out;
+		end else if (instruction[5:3] == 3'b011 && ~EQUAL) begin
+			PC <= PC + instruction[2:0];
+		end
 	end else 
 	  PC <= PC + 1;	     // default == increment by 1
 end
-
-
-
-    
-	
-	/* WHAT IS THIS FOR???
-	else if(jump_en) begin
-	  if(PC>13)
-	    PC <= PC - 14;
-	  else
-	    halt <= 1;       // trap error condition
-	end
-	*/ 
-	
-
-always @()
 endmodule
         

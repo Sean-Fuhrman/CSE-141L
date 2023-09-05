@@ -8,10 +8,8 @@ module LUT(
 
 always_comb 
   case(addr)		   //-16'd30;
-	2'b00:   Target = 16'hffff;//-1
-	2'b01:	 Target = 16'h0f03;
-	2'b10:	 Target = 16'h0003;
-	default: Target = 16'h0;
+	3'b000: Target = 9'd5;
+	default: Target = 9'd1;
   endcase
 
 endmodule

@@ -21,22 +21,22 @@ module data_mem(
     if(Data_read_en) begin
       Data_memory_out = core[Data_address];
 // optional diagnostic print
-	  $display("Memory read M[%d] = %d",DataAddress,DataOut);
+	  $display("Memory read M[%d] = %d",Data_address,Data_memory_out);
     end else 
-      DataOut = 'bZ;           // tristate, undriven
+      Data_memory_out = 'bZ;           // tristate, undriven
 
-  always_ff @ (posedge CLK)		 // writes are sequential
+  always @ (posedge CLK)		 // writes are sequential
     if(reset) begin
 // you may initialize your memory w/ constants, if you wish
       for(int i=0;i<256;i++)
 	    core[i] <= 0;
-      core[ 16] <= 254;   // overrides the 0
-      core[244] <= 5;
+       core[ 16] <= 254;   // overrides the 0
+       core[244] <= 5;
 	end
     else if(Data_write_en) begin
       core[Data_address] <= Data_memory_in;
 // optional diagnostic print statement
-	  $display("Memory write M[%d] = %d",DataAddress,DataIn);
+	  $display("Memory write M[%d] = %d",Data_address,Data_memory_in);
     end
 
 endmodule
