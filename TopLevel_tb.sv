@@ -32,8 +32,8 @@ initial begin
   for(int j=0; j<8; j++) begin
     DUT.reg_file1.registers[j] = 8'b0;  
   end
-  DUT.reg_file1.registers[0] = 8'b1;
-  DUT.reg_file1.registers[1] = 8'b1;
+  DUT.reg_file1.registers[0] = 8'b101;
+  DUT.reg_file1.registers[1] = 8'b0;
 // launch program in DUT
   #10ns start = 0;
 // Wait for done flag, then display results
@@ -47,12 +47,14 @@ end
 
 always begin   // clock period = 10 Verilog time units
   #5ns  CLK = 1;
-  #10ns for(int j=0; j<8; j++) begin
+ 
+  $display("PC = %d", DUT.PC1.PC);
+  $display("Instruction = %b",DUT.Instruction);
+  $display("Op Code = %b",DUT.ALU1.ALU_op_code);
+  $display("ALU OUT = %d",DUT.ALU1.ALU_out);
+  for(int j=0; j<8; j++) begin
     $display("Register %d = %d",j, DUT.reg_file1.registers[j]);
   end
-  $display("PC = %d", DUT.PC1.PC);
-  $display("Op Code = %d",DUT.ALU1.ALU_op_code);
-  $display("ALU OUT = %d",DUT.ALU1.ALU_out);
   #5ns  CLK = 0;
 end
       

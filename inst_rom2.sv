@@ -9,16 +9,16 @@ module InstROM #(parameter IW = 10, DW = 9)(
   logic [DW-1:0] inst_rom [2**IW];	    // automatically size to pointer width
 
   // load machine code program into instruction ROM
-/* alternative version:  
+
   initial begin
-	$readmemb("C:/Users/riyang liu/Desktop/CSE-141L-lab4/CSE-141L-master/binary9.txt",out);
+	$readmemb("C:/Users/seant/OneDrive/Desktop/CSE-141L/instructions.txt",inst_rom);
   end
-*/
+
 // create the array
-  initial begin
-    inst_rom[ 0] = 000000000;
+//  initial begin
+//    inst_rom[ 0] = 010110001;
 // ...
-  end
+//end
 // continuous combinational read output
 // change the pointer (from program counter) ==> change the output
   assign InstOut = inst_rom[InstAddress];

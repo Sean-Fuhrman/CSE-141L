@@ -24,7 +24,10 @@ module ALU(
 	logic zero_flag = 0;
 	logic beven_flag = 0;
 	logic parity_flag = 0;
-  always_comb begin
+ always_comb begin
+	zero_flag = 0;
+	beven_flag = 0;
+   parity_flag = 0;
     {SC_OUT} = 0;            // default -- clear carry out and result out
 	 ALU_out = 0;
     // single instruction for both LSW & MSW

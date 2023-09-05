@@ -86,10 +86,10 @@ assign Reg_write_data = Select_data ? Data_memory_out : ALU_out;  // select data
   	.Source_1_data
 	);
 
-    assign ALU_arg_0 = Source_0_data;  // connect RF out to ALU in
+   assign ALU_arg_0 = Source_0_data;  // connect RF out to ALU in
 	assign ALU_arg_1 = Immediate_en? {5'b00000, Immediate} : Source_1_data;  // connect RF out to ALU in
 
-    ALU ALU1  (
+   ALU ALU1  (
 		.ALU_arg_0(ALU_arg_0),      	// R0 if arithmetic
     	.ALU_arg_1(ALU_arg_1),       // R1 if arithmetic
   		.ALU_op_code(Instruction[5:3]),			// ALU opcode, part of microcode
