@@ -170,6 +170,10 @@ public class KissSim {
                 opcodeVal = InstructionValues.FLAG;
                 break;
             }
+            case("BGT"): {
+                opcodeVal = InstructionValues.BGT;
+                break;
+            }
             default: {
                 System.out.println("ERROR: UNABLE TO DECIPHER LINE OF CODE:" + line);
                 System.exit(3);
@@ -224,22 +228,26 @@ public class KissSim {
                 break;
             }
             case(InstructionValues.LSL): {
-                if(registers[newInstruction.getOperandOne()] == 0) {
+                if(registers[1] == 0) {
                     registers[2] = registers[0];
                     break;
                 }
-                String binRep = Integer.toBinaryString(registers[0]);
+                String binRep = Integer.toBinaryString(registers[0] << registers[1]);
+                System.out.println("BIN REP = " + binRep);
                 // pad with zero's if necessary
-                while(binRep.length() != 8) {
+                while(binRep.length() <= 8) {
                     binRep =  "0" + binRep; 
+                }
+                if(binRep.length() > 8) { // if length is too large cut out first numbers
+                    binRep = binRep.substring(binRep.length() - 8);
                 }
                 System.out.println(binRep);
                 StringBuilder stringReverser = new StringBuilder(binRep);
                 String binRepReverse = stringReverser.reverse().toString();
                 int newVal = 0;
-                for(int i = 0; i < 8 - registers[1]; i++) {
+                for(int i = 0; i < 8; i++) {
                     if(binRepReverse.charAt(i) == '1') {
-                    newVal += Math.pow(2, i + registers[i]);
+                    newVal += Math.pow(2, i);
                     }
                 }
                 registers[2] = newVal;
@@ -302,7 +310,8 @@ public class KissSim {
                 if((registers[0] == registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BNE)
                 || (registers[0] == registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BNEI)
                 || (registers[0] != registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BEQ)
-                || (registers[0] != registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BEQI)) {
+                || (registers[0] != registers[1] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BEQI)
+                || (registers[1] >= registers[0] && instructions.get(currInstruction + 1).getOpcode() == InstructionValues.BGT)) {
                     currInstruction ++;
                 }
                 break;
@@ -320,6 +329,10 @@ public class KissSim {
                 break;
             }
             case(InstructionValues.BEQ): {
+                currInstruction = LUT[newInstruction.getOperandOne()] - 1;
+                break;
+            }
+            case(InstructionValues.BGT): {
                 currInstruction = LUT[newInstruction.getOperandOne()] - 1;
                 break;
             }

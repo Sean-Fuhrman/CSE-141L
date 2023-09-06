@@ -1,1 +1,57 @@
-// PRELOADED VALUES:
+// ASSUME I IS STORED IN DAT_MEM 128!!!!
+// LOAD I INTO R7 and check its value- IF I = 30 set done flag!
+
+
+
+// remove all parity bits and place b1-b8 in R6 b9-b11 in R7
+// what each register stores:
+// R0 0 (arithmetic reg)
+// R1 0 (arithmetic reg)
+// R2 0 (arithmetic reg)
+// r3 (MSW of 16 bit input)
+// r4 (LSW of 16 bit input)
+// r5 (MSW of 11 bit output)
+// r6 (LSW of 11 bit output)
+// r7 stores c1c2c4c8
+// step 1: get b9 - b11 alone on one bit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MOVE R1 R2 
+CMP 
+BNE 1 // if c0 = p0 then we have an even number of errors
+// if we have an even number of errors check if 2, or 0 
+MOVE R0 R5 // isolate c8 c4 c2 c1
+LSLI 4 
+MOVE R0 R2 // R0 now stores (c8, c4, c2, c1, 0, 0, 0, 0)
+CMP // if c8 c4 c2 c1  != 0  and p0 = c0 then we have two errors - send back 1XXX...
+BEQ 2 // if we have zero errors immediatly branch to output calculations
+SETI 1
+MOVE R0 R2 
+LSLI 7
+STORE R1 R2 // return 1XXX.... and exit program
+B 7 // exit program after returning in error 
+// if c0 != p0 then we have an odd amount of errors! must fix 
+LSRI 4 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, c8, c4, c2, c1)
+SETI 7
+MOVE R1 R2
+CMP // if c8,c4,c2,c1 is less then 8 then error is in first byte, else second byte
+BGT 4 // if larger then 7 error must be in second byte 
+SETI 1 // if smaller then 7 then error is in first byte, load it in
+MOVE R0 R2 
+LSLI 5 
+MOVE R0 R2 // R0 now stores 32
