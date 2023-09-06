@@ -19,6 +19,12 @@ const logic [1:0] kFLAG  = 2'b01;
 const logic [1:0] kLOAD = 2'b10;
 const logic [1:0] kSTORE  = 2'b11;
 
+const logic [2:0] kBEA = 3'b000;
+const logic [2:0] kBER = 3'b001;
+const logic [2:0] kBNA = 3'b010;
+const logic [2:0] kBNR = 3'b011;
+const logic [2:0] kBUN = 3'b100;
+
 // Enum names for data operations
 
 endpackage // definitions

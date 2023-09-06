@@ -3,6 +3,7 @@
 // accepts branch and jump instructions
 // default = increment by 1
 // issues halt when PC reaches 63
+import definitions::*;
 module PC(
   input init,
   input [8:0] instruction,
@@ -26,14 +27,16 @@ always @(posedge CLK)
     if(PC > 6)            //if PC reaches 1024, halt
 	  halt <= 1;		  
 	else if(instruction[8] == 1'b0 && instruction[6] == 1'b1) begin //check it's ariithmetic branching instruction 
-		if(instruction[5:3] == 3'b000 && EQUAL) begin
+		if(instruction[5:3] == kBEA && EQUAL) begin
 			PC <= LUT_out;
-		end else if(instruction[5:3] == 3'b001 && EQUAL) begin
-			PC <= PC + instruction[2:0];
-		end  else if(instruction[5:3] == 3'b010 && ~EQUAL) begin
+		end else if(instruction[5:3] == kBER && EQUAL) begin
+			PC <= PC + instruction[2:0] + 1;
+		end  else if(instruction[5:3] == kBNA && ~EQUAL) begin
 			PC <= LUT_out;
-		end else if (instruction[5:3] == 3'b011 && ~EQUAL) begin
-			PC <= PC + instruction[2:0];
+		end else if (instruction[5:3] == kBNR && ~EQUAL) begin
+			PC <= PC + instruction[2:0] + 1;
+		end else if (instruction[5:3] === kBUN) begin
+			PC <= PC + LUT_out;
 		end
 	end else 
 	  PC <= PC + 1;	     // default == increment by 1

@@ -53,8 +53,8 @@ module Ctrl (
         end
         kSTORE:   begin 
             Data_write_en = 1'b1;
-            Reg_read_address_0 = Instruction[2:0];
-            Reg_read_address_1 = Instruction[5:3];
+            Reg_read_address_0 = Instruction[5:3];
+            Reg_read_address_1 = Instruction[2:0];
         end
       endcase 
     end else if(Instruction[6] == 0) begin //not data and not branching
