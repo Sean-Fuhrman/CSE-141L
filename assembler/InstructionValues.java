@@ -25,5 +25,6 @@ public final class InstructionValues {
     public static final int AND = 20;
     public static final int ANDI = 21;
     public static final int CMPI = 22;
+    public static final int BGT = 23;
 
 }

@@ -85,6 +85,10 @@ public class Instruction{
                 operand = "BEQI";
                 break;
             }
+            case(InstructionValues.BGT): {
+                operand = "BGT";
+                break;
+            }
             case(InstructionValues.BNE): {
                 operand = "BNE";
                 break;
