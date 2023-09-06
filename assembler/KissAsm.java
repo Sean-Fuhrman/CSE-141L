@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class KissAsm {
-    private final static String inputFileName = "C:\\Users\\14252\\CSE-141L\\assembler\\kiss_assembly.txt";
-    private final static String outputFileName = "C:\\Users\\14252\\CSE-141L\\assembler\\Kiss.bin";
+    private final static String inputFileName = "kiss_assembly.txt";
+    private final static String outputFileName = "Kiss.bin";
     static int lineNumber = 0;
     public static void main (String[] args) throws IOException {
         /* 
