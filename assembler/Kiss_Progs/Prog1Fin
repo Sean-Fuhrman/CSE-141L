@@ -2,10 +2,10 @@ SETI 1
 MOVE R0 R2
 LSLI 5
 MOVE R0 R2 
-SUBI 3 // R2 now stores 29
+SUBI 2 // R2 now stores 30
 MOVE R0 R2
 MOVE R1 R3
-CMP  // if i = 29 then we are finished
+CMP  // if i = 30 then we are finished
 BEQ 7   // 111 corresponds to 1024 in LUT - will set done flag if we are done with writes
 LOAD R6 R3 // store lower 8 bits in R6 
 MOVE R0 R3 // increment R3 (i) by one

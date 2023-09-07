@@ -1,57 +1,475 @@
-// ASSUME I IS STORED IN DAT_MEM 128!!!!
-// LOAD I INTO R7 and check its value- IF I = 30 set done flag!
-
-
-
-// remove all parity bits and place b1-b8 in R6 b9-b11 in R7
-// what each register stores:
-// R0 0 (arithmetic reg)
-// R1 0 (arithmetic reg)
-// R2 0 (arithmetic reg)
-// r3 (MSW of 16 bit input)
-// r4 (LSW of 16 bit input)
-// r5 (MSW of 11 bit output)
-// r6 (LSW of 11 bit output)
-// r7 stores c1c2c4c8
-// step 1: get b9 - b11 alone on one bit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-MOVE R1 R2 
-CMP 
-BNE 1 // if c0 = p0 then we have an even number of errors
-// if we have an even number of errors check if 2, or 0 
-MOVE R0 R5 // isolate c8 c4 c2 c1
-LSLI 4 
-MOVE R0 R2 // R0 now stores (c8, c4, c2, c1, 0, 0, 0, 0)
-CMP // if c8 c4 c2 c1  != 0  and p0 = c0 then we have two errors - send back 1XXX...
-BEQ 2 // if we have zero errors immediatly branch to output calculations
 SETI 1
 MOVE R0 R2 
-LSLI 7
-STORE R1 R2 // return 1XXX.... and exit program
-B 7 // exit program after returning in error 
-// if c0 != p0 then we have an odd amount of errors! must fix 
+LSLI 7 // R2 now stores 128
+LOAD R7 R2 // R7 now stores i
+SETI 1 
+MOVE R0 R2
+LSLI 5 
+MOVE R0 R2 // R0 stores 32
+SUBI 2 
+MOVE R0 R2 // R0 stores 30
+MOVE R1 R7
+CMP // compare 30 to i
+BEQ 7 // if i = 30 set done flag 
+SETI 1// load value at position 30 + i in dat_mem into r4
+MOVE R0 R2
+LSLI 5
+MOVE R0 R2 // R0 now stores 32
+SUBI 2 
+MOVE R0 R2 // R0 now stores 30 MUST ADD i
+MOVE R1 R7 // R7 now stores i
+ADD
+MOVE R0 R2 // R0 now stores 30 + i
+LOAD R3 R0 // R3 STORES UPPER BYTE
+ADDI 1 R2 now stores 31 + i
+LOAD R4 R2 // R4 STORES LOWER BYTE
+SETI 0 // clear arithmetic registers for further ops
+MOVE R0 R2
+MOVE R1 R2
+MOVE R0 R3 // R3 stores (b11, b10, b9, b8, b7, b6, b5, p8) 
+LSRI 5 // isolate (b11, b10, b9) onto R0
+MOVE R5 R2 // MSW of 11 bit output completed.
+MOVE R0 R3 // isolate (b8, b7, b6, b5) onto R1
+LSRI 1 // knock of p8
+MOVE R0 R2 // R0 stores (0, b11, b10, b9, b8, b7, b6, b5)
+LSLI 4 // knock off b11 - 9
+MOVE R1 R2 // R1 now stores (b8, b7, b6, b5, 0, 0, 0, 0)
+MOVE R0 R4 // R4 stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSRI 5 // knock off p4, b1, p2, p1, p0
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, b4, b3, b2)
+LSLI 1 // move into correct position
+MOVE R0 R2 // R0 now stores(0, 0, 0, 0, b4, b3, b2, 0)
+XOR
+MOVE R1 R2 // R1 now stores (b8, b7, b6, b5, b4, b3, b2, 0)
+MOVE R0 R4 // R4 stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSRI 3 // knock off p2, p1, p0
+MOVE R0 R2 // R0 stores(0, 0, 0, b4, b3, b2, p4, b1)
+LSLI 7 // knock off b4, b3, b2, p4
+MOVE R0 R2 // R0 stores(b1, 0, 0, 0, 0, 0, 0, 0)
+LSRI 7
+MOVE R0 R2 
+XOR // R2 stores (b8, b7, b6, b5, b4, b3, b2, b1)
+MOVE R6 R2 // R6 stores LSW
+MOVE R7 R5 // R7  stores MSW
+MOVE R0 R7 // BEGINNING OF PARITY CALCULATIONS
+LSLI 5
+MOVE R1 R2
+MOVE R0 R6 // move lower 4 bits into LSB position and store in R0
+LSRI 4
+MOVE R0 R2
+XOR // COMBINE UPPER 8 BITS INTO R2
+FLAG R0 R2 // calculate parity of upper 8 bits
+LSRI 3 
+MOVE R4 R2 // C8 stored as first bit in R4
+MOVE R0 R7 // begin calculating p4: need bits 11-8, 4-2 in one byte
+LSLI 5
+MOVE R1 R2 // R1 stores upper 3 bits 
+MOVE R0 R6 // isolate (grabbing 4th bit)
+LSRI 7
+MOVE R0 R2 // move into correct position on R1
+LSLI 4
+MOVE R0 R2
+XOR 
+MOVE R1 R2
+MOVE R0 R6 // move lower 3 bits into LSB position and store in R0
+LSRI 1
+MOVE R0 R2
+LSLI 5
+MOVE R0 R2
+LSRI 4
+MOVE R0 R2
+XOR // use XOR to combine 7 bits into same byte 
+FLAG R0 R2
+LSRI 3
+MOVE R0 R2
+LSLI 1 
+MOVE R0 R2
+MOVE R1 R4
+XOR 
+MOVE R4 R2 // p4 now stored as second bit in R4
+MOVE R0 R7 // calculate C2 (bits 11, 10, 7, 6, 4, 3 , 1)
+LSRI 1 // storing bits 11, 10 in R1
+MOVE R0 R2
+LSLI 6
+MOVE R1 R2
+MOVE R0 R6 // bits 3,4
+LSLI 1 //isolate data
+MOVE R0 R2
+LSRI 6
+MOVE R0 R2
+LSLI 4 // move into correct position for R1
+MOVE R0 R2
+XOR // combine with upper 2 bits and store
+MOVE R1 R2
+MOVE R0 R6 // bits 5,6 (BITS 4, 3)
+LSLI 4 // isolate data
+MOVE R0 R2
+LSRI 6
+MOVE R0 R2
+LSLI 2 // get in correct position 
+MOVE R0 R2
+XOR //combine with upper 4 bits and store 
+MOVE R1 R2
+MOVE R0 R6 // move lowest bit into LSB position and store in R0 (BIT 1)
+LSLI 7 // isolate data
+MOVE R0 R2
+LSRI 7 // get in correct position
+MOVE R0 R2
+XOR 
+FLAG R0 R2 //right shift flag bits by 3 to store p2
+LSRI 3     
+MOVE R0 R2
+LSLI 2 // left shift by 2 to get into correct position in p4
+MOVE R0 R2
+MOVE R1 R4
+XOR
+MOVE R4 R2 // p2 now stored as third bit in R4
+MOVE R0 R7 // CALCULATE C1 // move upper 5 bits into MSB position and store  in R1 // bit 1 (BIT 11)
+LSRI 2 // isolate data
+MOVE R0 R2
+LSLI 7 // move into correct position
+MOVE R1 R2 // store in R1
+MOVE R0 R7 // bit 2 (BIT 9)
+LSLI 7// isolate data
+MOVE R0 R2
+LSRI 1 // move into correct position
+MOVE R0 R2
+XOR // combine with bit 1 and store in R1
+MOVE R1 R2
+MOVE R0 R6 // bit 3 (BIT 7)
+LSLI 1 // isolate data
+MOVE R0 R2
+LSRI 7 // isolate data
+MOVE R0 R2
+LSLI 5 // move into correct position
+MOVE R0 R2
+XOR // combine with bits 1,2 and store in R1
+MOVE R1 R2
+MOVE R0 R6 // bits 4,5 (BITS 4, 5)
+LSLI 3 // isolate data
+MOVE R0 R2
+LSRI 6 // isolate data
+MOVE R0 R2
+LSLI 3 // move into correct position
+MOVE R0 R2
+XOR // combine with bits 1-3 and store in R1
+MOVE R1 R2
+MOVE R0 R6 // move lower 2 bits into LSB position and store in R0 (BITS 7,8)
+LSLI 6 // isolate data
+MOVE R0 R2
+LSRI 6 // move into correct position
+MOVE R0 R2
+XOR // combine all 7 bits onto same byte
+FLAG R0 R2 // calculate parity and store as 4th LSB in R4, right shift flag by 3 to store p1
+LSRI 3
+MOVE R0 R2 // left shift p1 by 3 to store it in correct position
+LSLI 3
+MOVE R0 R2
+MOVE R1 R4 //combine with p8,4,2 and store in R4 - p1 now stored as 4th bit
+XOR
+MOVE R4 R2
+MOVE R0 R6 // calculate parity of lower 8 bits // CALCULATE C0 (ALL BITS)
+FLAG R0 R0 
+LSRI 3 // right shift by 3 to isolate parity
+MOVE R0 R2 
+LSLI 3 // shift left 3 to get in correct position for XOR with upper 3 bits
+MOVE R0 R2
+MOVE R1 R7 // combine parity of lower 8 bits with upper 3 bits
+XOR // calculate total parity of all 11 bits
+FLAG R0 R2
+LSRI 3 // right shift 3 to isolate parity
+MOVE R7 R2  // parity of all 11 bits stored in R7
+SETI 1 // load in i from dat_mem 128 and store it in R6
+MOVE R0 R2 
+LSLI 7 // R2 now stores 128  
+LOAD R6 R2
+SETI 1// load in input LSW, MSW to grab p8, p4, p2, p1 for c0 calculations
+MOVE R0 R2
+LSLI 5
+MOVE R0 R2 // R0 now stores 32
+SUBI 2 
+MOVE R0 R2 // R0 now stores 30
+MOVE R1 R6 
+ADD // R2 now stores 30 + i
+MOVE R0 R2
+LOAD R5 R0 // R5 STORES UPPER BYTE (b11, b10, b9, b8, b7, b6, b5, p8)
+ADDI 1 // load value at position 31 + 1 in dat_mem into r7
+LOAD R6 R2 // R6 STORES LOWER BYTE (b4, b3, b2, p4, b1, p2, p1, p0)
+MOVE R0 R5// grab p8 p4 p2 p1 to compare against parity of all data bits - need to load in
+LSLI 7 // isolate p8 
+MOVE R0 R2 // R0 = (p8, 0, 0, 0, 0, 0, 0, 0)
+MOVE R1 R7 // R1 =
+XOR // r2 now stores (p8, 0, 0, 0, 0, 0, 0, parity of all 11 bits) 
+MOVE R1 R2
+MOVE R0 R6 // R0 now stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSLI 3
+MOVE R0 R2 // R0 now stores (p4, b1, p2, p1, p0, 0, 0, 0)
+LSRI 7
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, 0, p4)
+LSLI 6
+MOVE R0 R2 // R0 now stores (0, p4, 0, 0, 0, 0, 0, 0)
+XOR 
+MOVE R1 R2 // R1 now stores (p8, p4, 0, 0, 0, 0, 0, parity of all 11 bits)
+MOVE R0 R6 // R0 now stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSRI 1 
+MOVE R0 R2 // R0 now stores (0, b4, b3, b2, p4, b1, p2, p1)
+LSLI 6
+MOVE R0 R2 // R0 now stores (p2, p1, 0, 0, 0, 0, 0, 0)
+LSRI 2
+MOVE R0 R2 // R0 (0, 0, p2, p1, 0, 0, 0, 0)
+XOR // R2 now stores (p8, p4, p2, p1, 0, 0, 0, parity of 11 data bits)
+FLAG R0 R2
+LSRI 3 // isolate the parity flag
+MOVE R0 R2 
+LSLI 4
+MOVE R0 R2 
+MOVE R1 R4
+XOR // all parities now stored in R2 as (0, 0, 0, c0, c1, c2, c4, c8)
+MOVE R5 R2 // R5 now stores (0, 0, 0, c0, c1, c2, c4, c8) - must flip order of first 4 bits
+MOVE R0 R5 
 LSRI 4 
+MOVE R0 R2 
+LSLI 4
+MOVE R1 R2 // R1 now stores (0, 0, 0, c0, 0, 0, 0, 0)
+MOVE R0 R5 // store c8 in position 4
+LSLI 7 
+MOVE R0 R2 //R0 now stores (c8, 0, 0, 0, 0, 0, 0, 0)
+LSRI 4
+MOVE R0 R2 // R0 now stores(0, 0, 0, 0, c8, 0, 0, 0)
+XOR 
+MOVE R1 R2 // R1 now stores (0, 0, 0, c0, c8, 0, 0, 0)
+MOVE R0 R5 // store c4 in position 3
+LSRI 1
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, c0, c1, c2, c4)
+LSLI 7
+MOVE R0 R2 // R0 now stores (c4, 0, 0, 0, 0, 0, 0, 0)
+LSRI 5 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, c4, 0, 0)
+XOR 
+MOVE R1 R2 // R1 now stores (0, 0, 0, c0, c8, c4, 0, 0)
+MOVE R0 R5 // store c2 in position 2
+LSRI 2
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, c0, c1, c2)
+LSLI 7 
+MOVE R0 R2 // R0 now stores (c2, 0, 0, 0, 0, 0, 0, 0)
+LSRI 6
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, c2, 0)
+XOR 
+MOVE R1 R2 // R1 now stores (0, 0, 0, c0, c8, c4, c2)
+MOVE R0 R5 // store c1 in position 1
+LSRI 3
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, c0, c1)
+LSLI 7
+MOVE R0 R2 // R0 now stores (c1, 0, 0, 0, 0, 0, 0, 0)
+LSRI 7
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, 0, c1)
+XOR 
+MOVE R5 R2 // R5 now stores (0, 0, 0, c0, c8, c4, c2, c1)
+MOVE R0 R5 // DATA CHECKS BEGIN isolate c0 
+LSRI 4
+MOVE R7 R2 // R7 now stores (0, 0, 0, 0, 0, 0, 0, c0)
+SETI 1 // grab p0 and store it in R1 p0 stored in dat_mem 31!
+MOVE R0 R2
+LSLI 5 // R0 now stores 32
+MOVE R0 R2 
+SUBI 1 // R2 now stores 31
+LOAD R0 R2 // R0 now stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSLI 7 // isolate p0 and store it in the first bit
+MOVE R0 R2
+LSRI 7
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, 0, p0)
+MOVE R1 R7 // R1 now stores (0, 0, 0, 0, 0, 0, 0, c0) // PROGRAM IS FULLY TESTED UP UNTIL THIS POINT
+CMP 
+BNE 1 // if c0 = p0 then we have an even number of errors, if so check if 2, or 0 
+MOVE R0 R5 // isolate c8 c4 c2 c1
+LSLI 4 
+MOVE R5 R2 // R5 now stores (c8, c4, c2, c1, 0, 0, 0, 0)
+SETI 1     // isolate p8 p4 p2 p1 
+SETI 1 // load in i
+MOVE R0 R2
+LSLI 7 // R2 now stores 128
+LOAD R4 R2 // R4 now stores i
+SETI 1 // load in MSB
+MOVE R0 R2 
+LSLI 5
+MOVE R0 R2
+SUBI 2
+MOVE R0 R2
+MOVE R1 R4
+ADD // R2 now stores 30 + i
+LOAD R6 R2 // R6 now stores (b11, b10, b9, b8, b7, b6, b5, p8)
+MOVE R0 R6
+LSLI 7 
+MOVE R3 R2 // R1 now stores (p8, 0, 0, 0, 0, 0, 0, 0)
+SETI 1 // load in LSB
+MOVE R0 R2
+LSLI 5 
+MOVE R0 R2 // R0 now stores 32
+SUBI 1  // R2 now stores 31 MUST ADD i!!!!
+MOVE R0 R2
+MOVE R1 R4
+ADD // R2 now stores 31 + i 
+LOAD R6 R2 // R6 now stores (b4, b3, b2, p4, b1, p2, p1, p0)
+MOVE R0 R6 
+LSRI 4 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, b4, b3, b2, p4)
+LSLI 7 
+MOVE R0 R2 // R0 now stores (p4, 0, 0, 0, 0, 0, 0, 0)
+LSRI 1  
+MOVE R0 R2
+MOVE R1 R3
+XOR 
+MOVE R1 R2 // R1 now stores (p8, p4, 0, 0, 0, 0, 0, 0)
+MOVE R0 R6 // R0 now stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSRI 1 
+MOVE R0 R2 // R0 now stores (0, b4, b4, b2, p4, b1, p2, p1)
+LSLI 6
+MOVE R0 R2 // R0 now stores (p2, p1, 0, 0, 0, 0, 0, 0)
+LSRI 2 
+MOVE R0 R2 // R0 now stores (0, 0, p2, p1, 0, 0, 0, 0)
+XOR // R2 now stores (p8, p4, p2, p1, 0, 0, 0, 0)
+MOVE R0 R2
+MOVE R1 R5 // R1 now stores (c8, c4, c2, c1, 0, 0, 0, 0)
+CMP // if c8 c4 c2 c1  != p8 p4 p2 p1  and p0 = c0 then we have two errors - send back 1XXX...
+BEQ 2 // if we have zero errors immediatly branch to output calculations
+SETI 1 //if we have two errors return 1XXXXXXX
+MOVE R0 R2  
+LSLI 7
+MOVE R3 R2
+SETI 1 // load in i into R4
+MOVE R0 R2
+LSLI 7 // R2 stores 128
+LOAD R4 R2 // R4 now stores i  
+STORE R4 R2 // return 1XXX....
+MOVE R0 R4// update i and return to top
+ADDI 2 
+MOVE R4 R2 
+SETI 1 
+MOVE R0 R2 
+LSLI 7 
+STORE R2 R4 // new value of i now stored in memory 
+BEQ 0// return to top after marking error
+MOVE R0 R5 // R0 stores (0, 0, 0, c0, c8, c4, c2, c1)
+LSLI 4  // R2 stores (c8, c4, c2, c1, 0, 0, 0, 0)
+MOVE R0 R2
+LSRI 4  // if c0 != p0 then we have an odd amount of errors! must fix 
 MOVE R0 R2 // R0 now stores (0, 0, 0, 0, c8, c4, c2, c1)
+MOVE R5 R0 // store this result in R5 for later usage  
+SETI 0
+MOVE R1 R2
+CMP
+BEQ 2 // if c8c4c2c1 = 0 then error occured at a parity bit, can send data freely
 SETI 7
 MOVE R1 R2
-CMP // if c8,c4,c2,c1 is less then 8 then error is in first byte, else second byte
-BGT 4 // if larger then 7 error must be in second byte 
-SETI 1 // if smaller then 7 then error is in first byte, load it in
+CMP
+BGT 3 // if larger then 7 error must be in second byte  if R0 > R1 branch!!!
+SETI 1 // load in i 
+MOVE R0 R2
+LSLI 7 // R2 now stores 128
+LOAD R3 R2 // R3 now stores i 
+SETI 1 // if smaller or equal to 7 then error is in first byte, load it in
 MOVE R0 R2 
 LSLI 5 
 MOVE R0 R2 // R0 now stores 32
+SUBI 1 // r2 now stores 31
+MOVE R0 R2
+MOVE R1 R3
+ADD // R2 now stores 31 + 1,  location of lower byte in datMem 
+LOAD R6 R2 // lowest byte in datMem now loaded into R6
+MOVE R7 R2 // location of lowest byte in datMem now stored in R7
+SETI 1
+MOVE R0 R2
+MOVE R1 R5
+LSL
+MOVE R1 R2
+MOVE R0 R6
+XOR // data is now corrected - store it back in memory 
+STORE R7 R2 // corrected data is now stored in correct place in datmem
+BEQ  2       // MUST CHANGE TO B FOR FINAL VERSION!!!
+MOVE R5 R0
+SETI 1 // load in i to R3, if c8,c4,c2,c1 is greater then or equal to 8 then error is in second byte 
+MOVE R0 R2
+LSLI 7 // R2 now stores 128
+LOAD R3 R2 // R3 now stores i
+SETI 1 
+MOVE R0 R2
+LSLI 5 
+MOVE R0 R2 // r0 now stores 32
+SUBI 2 // R2 now stores 30 
+MOVE R0 R2
+MOVE R1 R3 
+ADD  // r6 now stores 30 + i, location of upper 8 bytes in dat_mem 
+LOAD R6 R2 // upper 8 bytes of dat_mem now stored in R6
+MOVE R7 R2 // location of upper 8 bytes of dat_mem now stored in R7
+MOVE R0 R5 // calculate which bit holds the error
+SUBI 7
+MOVE R0 R2 
+SUBI 1 
+MOVE R5 R2 // R5 now stores the bit index of the incorrect bit
+SETI 1
+MOVE R0 R2 
+MOVE R1 R5
+LSL 
+MOVE R0 R2
+MOVE R1 R6
+XOR // R2 now stores the corrected byte
+STORE R7 R2 // corrected data is now placed in correct location in dat_mem
+SETI 1 // LOAD I INTO R3 FINAL STEP: CONVERT CORRECTED INPUT DATA TO OUTPUT AND PLACE IT INTO MEMORY
+MOVE R0 R2
+LSLI 7 // R2 now stores 128
+LOAD R2 R2 // R2 now stores i
+SETI 1// load value at position 30 + i in dat_mem into r4 
+MOVE R0 R2
+LSLI 5
+MOVE R0 R2 // R0 now stores 32
+SUBI 2 
+MOVE R0 R2  // R0 now stores 30
+MOVE R1 R3 // R1 now stores i
+ADD 
+MOVE R0 R2// R0 now stores 30  + i!
+LOAD R3 R0 // R3 STORES UPPER BYTE
+ADDI 1 // load value at position 31 in dat_mem into r3
+LOAD R4 R2 // R4 STORES LOWER BYTE
+SETI 0 // clear arithmetic registers for further ops
+MOVE R0 R2
+MOVE R1 R2
+MOVE R0 R3 // R3 stores (b11, b10, b9, b8, b7, b6, b5, p8) 
+LSRI 5 // isolate (b11, b10, b9) onto R0
+MOVE R5 R2 // MSW of 11 bit output completed.
+MOVE R0 R3 // isolate (b8, b7, b6, b5) onto R1
+LSRI 1 // knock of p8
+MOVE R0 R2 // R0 stores (0, b11, b10, b9, b8, b7, b6, b5)
+LSLI 4 // knock off b11 - 9
+MOVE R1 R2 // R1 now stores (b8, b7, b6, b5, 0, 0, 0, 0)
+MOVE R0 R4 // R4 stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSRI 5 // knock off p4, b1, p2, p1, p0
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, b4, b3, b2)
+LSLI 1 // move into correct position
+MOVE R0 R2 // R0 now stores(0, 0, 0, 0, b4, b3, b2, 0)
+XOR
+MOVE R1 R2 // R1 now stores (b8, b7, b6, b5, b4, b3, b2, 0)
+MOVE R0 R4 // R4 stores (b4, b3, b2, p4, b1, p2, p1, p0)
+LSRI 3 // knock off p2, p1, p0
+MOVE R0 R2 // R0 stores(0, 0, 0, b4, b3, b2, p4, b1)
+LSLI 7 // knock off b4, b3, b2, p4
+MOVE R0 R2 // R0 stores(b1, 0, 0, 0, 0, 0, 0, 0)
+LSRI 7
+MOVE R0 R2 
+XOR // R2 stores (b8, b7, b6, b5, b4, b3, b2, b1)
+MOVE R6 R2 // R6 stores LSW
+MOVE R7 R5 // R7  stores MSW
+SETI 1 // load in i to R0
+MOVE R0 R2
+LSLI 7 // R2 now stores 128
+LOAD R0 R2 // R0 now stores i 
+ADDI 1 // store LSW in dat_mem 1 + i, MSW in dat_mem 0 + i ADD I
+STORE R2 R6
+MOVE R2 R0
+STORE R2 R7
+ADDI 2 // (R2 stores i + 2) update i by 2 and place it back into memory 
+MOVE R3 R2 // R3 now stores new value of i
+SETI 1 // i is stored at address 128 of dat_mem
+MOVE R0 R2
+LSLI 7 // R2 now stores 128
+STORE R2 R3 // new value of i is now stored in memory 
+BEQ 0 // SWAP TO B WHEN RUNNING FINAL TESTBENCH!!!!

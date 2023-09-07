@@ -66,6 +66,7 @@ public class KissAsm {
             instructionTitle = line.substring(0, 3);
         }
         
+        
         System.out.println(instructionTitle);
         
         switch(instructionTitle) {

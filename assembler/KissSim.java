@@ -7,17 +7,14 @@ import java.util.Scanner;
 // into the microprocessor this program converts all arithmetic operations to java 
 // and simulates data memory and registers using arrays 
 public class KissSim {
-
-
-
-    private int[] registers;
+    private byte[] registers;
     private int[] dat_mem;
     private int[] LUT; 
     private int currInstruction;
     private boolean LUT_set;
     private ArrayList<Instruction> instructions;
     public KissSim(int regCap, int dat_memCap, int LUT_size){
-        registers = new int[regCap];
+        registers = new byte[regCap];
         dat_mem = new int[dat_memCap];
         LUT = new int[LUT_size];
         currInstruction = 0;
@@ -212,19 +209,19 @@ public class KissSim {
 
         switch(newInstruction.getOpcode()) {
             case(InstructionValues.ADD): {
-                registers[2] = registers[1] + registers[0];
+                registers[2] = (byte) (registers[1] + registers[0]);
                 break;
             }
             case(InstructionValues.ADDI): {
-                registers[2] = registers[0] + newInstruction.getOperandOne();
+                registers[2] = (byte) (registers[0] + newInstruction.getOperandOne());
                 break;
             }
             case(InstructionValues.SUB): {
-                registers[2] = registers[0] - registers[1];
+                registers[2] = (byte) (registers[0] - registers[1]);
                 break;
             }
             case(InstructionValues.SUBI): {
-                registers[2] = registers[0] - newInstruction.getOperandOne();
+                registers[2] = (byte) (registers[0] - newInstruction.getOperandOne());
                 break;
             }
             case(InstructionValues.LSL): {
@@ -250,7 +247,7 @@ public class KissSim {
                     newVal += Math.pow(2, i);
                     }
                 }
-                registers[2] = newVal;
+                registers[2] = (byte) newVal;
                 break;
             }
             case(InstructionValues.LSLI): {
@@ -272,7 +269,7 @@ public class KissSim {
                     newVal += Math.pow(2, i + newInstruction.getOperandOne());
                     }
                 }
-                registers[2] = newVal;
+                registers[2] = (byte) newVal;
                 break;
             }
             case(InstructionValues.LSR): {
@@ -280,7 +277,7 @@ public class KissSim {
                     registers[2] = registers[0];
                     break;
                 }
-                registers[2] = registers[0] >> registers[1];
+                registers[2] = (byte) (registers[0] >> registers[1]);
                 break;
             }
             case(InstructionValues.LSRI): {
@@ -288,19 +285,19 @@ public class KissSim {
                     registers[2] = registers[0];
                     break;
                 }
-                registers[2] = registers[0] >>newInstruction.getOperandOne();
+                registers[2] = (byte) (registers[0] >>newInstruction.getOperandOne());
                 break;
             } 
             case(InstructionValues.XOR): {
-                registers[2] = registers[0] ^ registers[1];
+                registers[2] = (byte) (registers[0] ^ registers[1]);
                 break;
             }
             case(InstructionValues.AND): {
-                registers[2] = registers[0] & registers[1];
+                registers[2] = (byte) (registers[0] & registers[1]);
                 break;
             }
             case(InstructionValues.ANDI): {
-                registers[2] = registers[0] & newInstruction.getOperandOne();
+                registers[2] = (byte) (registers[0] & newInstruction.getOperandOne());
                 break;
             }
             case(InstructionValues.CMP): {
@@ -353,7 +350,7 @@ public class KissSim {
                 break;
             }
             case(InstructionValues.SETI): {
-                registers[2] = newInstruction.getOperandOne();
+                registers[2] = (byte) newInstruction.getOperandOne();
                 break;
             }
             case(InstructionValues.MOVE): {
@@ -361,7 +358,7 @@ public class KissSim {
                 break;
             }
             case(InstructionValues.LOAD): {
-                registers[newInstruction.getOperandOne()] = dat_mem[registers[newInstruction.getOperandTwo()]];
+                registers[newInstruction.getOperandOne()] = (byte) dat_mem[registers[newInstruction.getOperandTwo()]];
                 break;
             }
             case(InstructionValues.STORE): {
