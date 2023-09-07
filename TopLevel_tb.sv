@@ -21,11 +21,20 @@ module TopLevel_tb;	     // Lab 17
 	.halt             
 	);
 
+  
+
 initial begin
   start = 1;
 // Initialize DUT's data memory
   #10ns for(int i=0; i<256; i++) begin
     DUT.data_mem1.core[i] = 8'h0;	     // clear data_mem
+  end
+  for(int i=0;i<15;i++)	begin
+    d1_in[i] = $random>>4;        // create 15 messages	   '1    '0
+// copy 15 original messages into first 30 bytes of memory 
+// rename "dm1" and/or "core" if you used different names for these
+    DUT.data_mem1.core[2*i+1]  = {5'b0,d1_in[i][11:9]};
+    DUT.data_mem1.core[2*i]    =       d1_in[i][ 8:1]; 
   end
 // students may also pre_load desired constants into data_mem
 // Initialize DUT's register file
@@ -51,6 +60,12 @@ always begin   // clock period = 10 Verilog time units
   $display("Instruction = %b",DUT.Instruction);
   $display("Op Code = %b",DUT.ALU1.ALU_op_code);
   $display("ALU OUT = %d",DUT.ALU1.ALU_out);
+  $display("EQUAL Flag = %b", DUT.EQUAL);
+  $display("ALU Arg 0  = %b", DUT.ALU1.ALU_arg_0);
+  $display("ALU Arg 1  = %b", DUT.ALU1.ALU_arg_1);
+  $display("Reg read arress 0 = %d", DUT.Ctrl1.Reg_read_address_0);
+  $display("Reg read arress 1 = %d", DUT.Ctrl1.Reg_read_address_1);
+
   for(int j=0; j<8; j++) begin
     $display("Register %d = %d",j, DUT.reg_file1.registers[j]);
   end
