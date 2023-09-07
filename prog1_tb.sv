@@ -23,15 +23,28 @@ bit  [15:0] score1, case1;
 // change "top_level" if you called your device something different
 // explicitly list ports if your names differ from test bench's
 // if you used any parameters, override them here
-top_level DUT(.clk, .start, .ack);            // replace "proc" with the name of your top level module
+TopLevel DUT(	.start(req), 
+	.CLK(clk), 
+	.halt(done)             
+  );            // replace "proc" with the name of your top level module
+// Initialize DUT's data memory
+
 
 initial begin
+  for(int i=0; i<256; i++) begin
+    DUT.data_mem1.core[i] = 8'h0;	     // clear data_mem
+  end
+  // students may also pre_load desired constants into data_mem
+  // Initialize DUT's register file
+  for(int j=0; j<8; j++) begin
+    DUT.reg_file1.registers[j] = 8'b0;  
+  end
   for(int i=0;i<15;i++)	begin
     d1_in[i] = $random>>4;        // create 15 messages	   '1    '0
 // copy 15 original messages into first 30 bytes of memory 
 // rename "dm1" and/or "core" if you used different names for these
-    DUT.dm1.core[2*i+1]  = {5'b0,d1_in[i][11:9]};
-    DUT.dm1.core[2*i]    =       d1_in[i][ 8:1];
+    DUT.data_mem1.core[2*i+1]  = {5'b0,d1_in[i][11:9]};
+    DUT.data_mem1.core[2*i]    =       d1_in[i][ 8:1];
   end
   #10ns req   = 1'b1;          // pulse request to DUT
   #10ns req   = 1'b0;
@@ -47,9 +60,9 @@ initial begin
     p0 = ^d1_in[i]^p8^p4^p2^p1;  // overall parity (16th bit)
 // assemble output (data with parity embedded)
     $displayb ({d1_in[i][11:5],p8,d1_in[i][4:2],p4,d1_in[i][1],p2,p1,p0});
-    $writeb  (DUT.dm1.core[31+2*i]);
-    $displayb(DUT.dm1.core[30+2*i]);
-    if({DUT.dm1.core[31+2*i],DUT.dm1.core[30+2*i]} == {d1_in[i][11:5],p8,d1_in[i][4:2],p4,d1_in[i][1],p2,p1,p0}) begin
+    $writeb  (DUT.data_mem1.core[31+2*i]);
+    $displayb(DUT.data_mem1.core[30+2*i]);
+    if({DUT.data_mem1.core[31+2*i],DUT.data_mem1.core[30+2*i]} == {d1_in[i][11:5],p8,d1_in[i][4:2],p4,d1_in[i][1],p2,p1,p0}) begin
       $display(" we have a match!");
       score1++;
     end
@@ -63,8 +76,23 @@ initial begin
 end
 
 always begin
+  
+  for(int j=0; j<8; j++) begin
+    $display("Register %d = %d",j, DUT.reg_file1.registers[j]);
+  end
   #5ns clk = 1;            // tic
+  $display("PC = %d", DUT.PC1.PC);
+  $display("Instruction = %b",DUT.Instruction);
+  $display("ALU OUT = %d",DUT.ALU1.ALU_out);
+  $display("ALU Arg 0  = %b", DUT.ALU1.ALU_arg_0);
+  $display("ALU Arg 1  = %b", DUT.ALU1.ALU_arg_1);
+
+
+  // // for(int i=0; i<59; i++) begin
+  //   $display("Memory %d = %d",i, DUT.data_mem1.core[i]);     // clear data_mem
+  // end
   #5ns clk = 0;			   // toc
+
 end										
 
 endmodule

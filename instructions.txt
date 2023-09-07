@@ -1,1 +1,5 @@
 010000001
+LOAD R0 R1
+R0 = mem[R1]
+STORE R0 R1
+mem[R0] = R1

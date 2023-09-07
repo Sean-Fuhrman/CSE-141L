@@ -46,10 +46,8 @@ module ALU(
       case(Data_op_code)
         kMOVE:   ALU_out = ALU_arg_1;
         kFLAG:   begin
-           zero_flag = (ALU_arg_1 == 8'b00000000)? 1'b1: 1'b0;
-           beven_flag = (ALU_arg_1[0] == 0)? 1'b1: 1'b0;
-           parity_flag = (^ALU_arg_1)? 1'b1: 1'b0;
-          ALU_out = {5'b00000, zero_flag, beven_flag, parity_flag};
+           parity_flag = ALU_arg_1[0] ^ ALU_arg_1[1] ^ ALU_arg_1[2] ^ ALU_arg_1[3] ^ ALU_arg_1[4] ^ ALU_arg_1[5] ^ ALU_arg_1[6] ^ ALU_arg_1[7];
+          ALU_out = {4'b0000, parity_flag,1'b0, 1'b0, 1'b0};
         end 
         kLOAD:   ALU_out = 20;
         kSTORE:  ALU_out = 21;
@@ -75,7 +73,7 @@ module ALU(
       EQUAL = 1'b0;
     end
     //parity flag set
-    PARITY = ^ALU_arg_0;
+    PARITY = ALU_arg_1[0] ^ ALU_arg_1[1] ^ ALU_arg_1[2] ^ ALU_arg_1[3] ^ ALU_arg_1[4] ^ ALU_arg_1[5] ^ ALU_arg_1[6] ^ ALU_arg_1[7];
   end
 endmodule
              

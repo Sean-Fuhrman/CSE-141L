@@ -41,8 +41,8 @@ module Ctrl (
         kFLAG:   begin
             Reg_write_en = 1'b1;
             Reg_read_address_0 = 3'b000; //(DON'T CARE)
-            Reg_read_address_1 = Instruction[5:3];
-            Reg_write_address = Instruction[2:0];
+            Reg_read_address_1 = Instruction[2:0];
+            Reg_write_address = Instruction[5:3];
         end
         kLOAD:    begin
             Reg_write_en = 1'b1;
@@ -74,7 +74,10 @@ module Ctrl (
       if(Instruction[7] == 1'b1) begin
         Immediate_en = 1;
       end
-    end
+    end else begin //branching instruction
+		  Reg_read_address_0 = 3'b000;
+		  Reg_read_address_1 = 3'b001;
+	 end
   end
 endmodule
 

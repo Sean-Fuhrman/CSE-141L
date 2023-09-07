@@ -26,14 +26,14 @@ module data_mem(
       Data_memory_out = 'bZ;           // tristate, undriven
 
   always @ (posedge CLK)		 // writes are sequential
-    if(reset) begin
+    /*if(reset) begin
 // you may initialize your memory w/ constants, if you wish
       for(int i=0;i<256;i++)
 	    core[i] <= 0;
        core[ 16] <= 254;   // overrides the 0
        core[244] <= 5;
-	end
-    else if(Data_write_en) begin
+	end */
+    if(Data_write_en) begin
       core[Data_address] <= Data_memory_in;
 // optional diagnostic print statement
 	  $display("Memory write M[%d] = %d",Data_address,Data_memory_in);
