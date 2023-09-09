@@ -4,27 +4,48 @@ public class kissTest {
     private static final String fileName = "C:\\Users\\14252\\CSE-141L\\assembler\\Kiss_Progs\\TestProg";
     public static void main(String[] args) {
         KissSim simulator = new KissSim(8,256,8);
-        int[] LUT = new int[]{0,351,418,390,0,0,0,1024};
+        int[] LUT = new int[]{0, 36, 40, 63, 68, 208, 1024, 1024};
         simulator.setLut(LUT);
         simulator.specs();
         simulator.loadCode(fileName);    
-        for(int i = 0; i <= 29; i++) {
-            simulator.setMemVal(0b11111111, i); // LOWER 8 BITS - STORED IN R6
+        for(int i = 0; i < 31; i++) {
+            simulator.setMemVal(0b11101010, i);
         }
-        simulator.executeInstructionsDebug(500);
-        for(int i = 0; i < 30; i+=2) {
-            String lowerHamCode = Integer.toBinaryString(simulator.readMemVal(30 + i));
-            String upperHamCode = Integer.toBinaryString(simulator.readMemVal(30 + i + 1));
-            // pad with zeros to get to 16 bits
-            while(lowerHamCode.length() != 8) {
-                lowerHamCode = "0" + lowerHamCode;
-            }
-            while(upperHamCode.length() != 8) {
-                upperHamCode = "0" + upperHamCode;
-            }
-        
-            System.out.println("OUTPUT HAMMING CODE = " + upperHamCode + lowerHamCode + " for index " + i);
-        }   
+        simulator.setMemVal(0b00000000, 31);
+        simulator.setRegVal(0b00010101, 7);
+        simulator.executeInstructionsDebug(8554);    
+       
+
+        // PATTERN VALUES:
+        // 11101
+        // 11010
+        // 10101
+        // 01010
+        // 10101
+        // 01011
+        // 10111
+        // 01110
+
+
+        // FINAL PAT VAL:
+        //11101
+        //11010
+        //10101
+        //01010
+        //01010
+        //01000
+        //01000
+        //00000
+        //00000
+        // EXPECTED OUTPUTS:
+        // TOT BYTES FOUND MATCH = 0
+        // TOT MATCHES FOUND NOT CROSSING = 0
+        // TOT MATCHES FOUND CROSSING = 0
+
+        //System.out.println("TOT MATCHES BYTE CROSSING: " + simulator.readMemVal(35));
+        //System.out.println("TOT MATCHES NOT BYTE CROSSING: " + simulator.readMemVal(33));
+        //System.out.println("TOT BYTES FOUND MATCH IN " + simulator.readMemVal(34));
+
         
     } 
     
