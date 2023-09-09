@@ -8,18 +8,12 @@ public class kissTest {
         simulator.setLut(LUT);
         simulator.specs();
         simulator.loadCode(fileName);
-        // hamming encoding of 000 0000 0000
-        simulator.setMemVal(0, 128);
-        simulator.setMemVal(0b00000000, 30); // MSW INPUT
-        simulator.setMemVal(0b00000000, 31); // LSW INPUT 
-        simulator.executeInstructionsDebug(5850);
-        
-        System.out.println("CORRECTED INPUT MSW: " + simulator.readMemVal(30));
-        System.out.println("CORRECTED INPUT LSW: " + simulator.readMemVal(31));
-        System.out.println("CORRECT OUTPUT MSW: " + simulator.readMemVal(0));
-        System.out.println("CORRECT OUTPUT LSW: " + simulator.readMemVal(0));
-        System.out.println(" i = " + simulator.readMemVal(128));
-        
+        simulator.setMemVal(0b11101000, 0); // LSW
+        simulator.setMemVal(0b00000101, 1); // MSW
+        simulator.executeInstructionsDebug(300);
+        System.out.println("LSW OUTPUT: " + simulator.readMemVal(30));
+        System.out.println("MSW OUTPUT: " + simulator.readMemVal(31));
+
         
         
     } 
@@ -52,3 +46,20 @@ KissSim simulator = new KissSim(8,256,8);
             System.out.println("OUTPUT HAMMING CODE = " + upperHamCode + lowerHamCode + " for index " + i);
         }     
         */   
+        
+        // PROG 2 TESTING CODE
+
+        /*
+        // hamming encoding of 000 0000 0000
+        simulator.setMemVal(0, 128);// LSW INPUT 
+        simulator.setMemVal(0b110000000, 0); // MSW INPUT
+        simulator.setMemVal(0b00000000, 1); //LSW INPUT
+        simulator.setMemVal(0b110000000, 58); // MSW INPUT
+        simulator.setMemVal(0b00000000, 59); //LSW INPUT
+        System.out.println("CORRECTED INPUT MSW: " + simulator.readMemVal(58));
+        System.out.println("CORRECTED INPUT LSW: " + simulator.readMemVal(59));
+        System.out.println("CORRECT OUTPUT MSW: " + simulator.readMemVal(28));
+        System.out.println("CORRECT OUTPUT LSW: " + simulator.readMemVal(29));
+        System.out.println(" i = " + simulator.readMemVal(128));
+        */
+        
