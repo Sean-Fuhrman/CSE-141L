@@ -6,7 +6,7 @@ SUBI 3 // R2 now stores 29
 MOVE R0 R2
 MOVE R1 R3
 CMP  // if i = 29 then we are finished
-BEQ 7   // 111 corresponds to 1024 in LUT - will set done flag if we are done with writes
+BEA 7   // 111 corresponds to 1024 in LUT - will set done flag if we are done with writes
 LOAD R6 R3 // store lower 8 bits in R6 
 MOVE R0 R3 // increment R3 (i) by one
 ADDI 1
@@ -240,7 +240,7 @@ SETI 0
 MOVE R0 R2
 MOVE R1 R2
 CMPI 0 // ALWAYS TRUE
-BEQ 0// branch to line 1 - 000 corresponds to 1 in LUT
+BEA 0// branch to line 1 - 000 corresponds to 1 in LUT
 
 
 
