@@ -174,10 +174,32 @@ LSRI 4  // get into correct positioning for XOR
 MOVE R0 R2
 XOR 
 MOVE R1 R2 // R1 now stores 5 highest bits of lowest byte of data
-MOVE R0 R4 // isolate bits 2,1,0 of parity
-LSRI 2
-MOVE R0 R2
+MOVE R0 R4 // isolate bits 2,1, 0 of parity
+LSRI 2  
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p0, p1, p2)
+LSLI 7
+MOVE R0 R2 // R0 now stores (p2, 0, 0, 0, 0, 0, 0, 0) 
+LSLI 5 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p2, 0, 0)
 XOR
+MOVE R1 R2 // R1 now stores (b4, b3, b2, p4, b1, p2, 0, 0)
+MOVE R0 R4 // R0 now stores (0, 0, 0, p0, p1, p2, p4, p8)
+LSRI 2 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p0, p1, p2)
+LSRI 1 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, p0, p1)
+LSLI 7
+MOVE R0 R2 // R0 now stores (p1, 0, 0, 0, 0, 0, 0, 0)
+LSRI 6
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, p1, 0)
+XOR
+MOVE R1 R2  // R1 now stores (b4, b3, b2, p4, b1, p2, p1, 0)
+MOVE R0 R4 // R0 now stores (0, 0, 0, p0, p1, p2, p4, p8)
+LSRI 2
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p0, p1, p2)
+LSRI 2
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, 0, p0)
+XOR // R2 now stores (b4, b3, b2, p4, b1, p2, p1, p0)
 MOVE R1 R2 // R1 now stores all 8 bits of lowest byte of data
 MOVE R5 R1 // R5 stores lower 8 bits
 MOVE R0 R7 // get upper 8 bits of data all into the same byte

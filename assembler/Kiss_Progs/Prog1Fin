@@ -224,8 +224,3 @@ MOVE R0 R2
 MOVE R1 R2
 CMPI 0 // ALWAYS TRUE
 BEQ 0// branch to line 1 - 000 corresponds to 1 in LUT
-
-
-
-
-
