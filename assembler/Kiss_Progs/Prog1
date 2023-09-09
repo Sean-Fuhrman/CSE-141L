@@ -1,178 +1,105 @@
-// PRELOADED VALUES:
-// ASSUME R0-R2 ARE SET TO ZERO!
-// R3 stores 0 - tracks current 11-bit data segment we are looking at
-// R4-R7 free to store whatever
-
-
-
-// PROGRAM START:
-// BEFORE CMP MUST SET R2 TO 30!!!!
 SETI 1
 MOVE R0 R2
 LSLI 5
-MOVE R0 R2 // R0 = 32, subtract 2
-SUBI 2 // 32 - 2 = 30, R2 now stores 30
-CMP R3 R2   // if R3 = 30 then we are finished
-
-// LOAD in 2 BYTES we are working on
-BADD 111   // 000 corresponds to 1024 in LUT - will set done flag if we are done with writes
-LOAD R6 R3 // store lower 8 bits in R6
-
-// increment R3 by one
-MOVE R0 R3      
+MOVE R0 R2 
+SUBI 3 // R2 now stores 29
+MOVE R0 R2
+MOVE R1 R3
+CMP  // if i = 29 then we are finished
+BEQ 7   // 111 corresponds to 1024 in LUT - will set done flag if we are done with writes
+LOAD R6 R3 // store lower 8 bits in R6 
+MOVE R0 R3 // increment R3 (i) by one
 ADDI 1
 MOVE R3, R2
 SETI 0
 MOVE R0 R2
-
-LOAD R7 R3 // store upper 3 bits in R7
-
-// CALCULATE P8
-
-// get upper 7 bits into one byte:
-
+LOAD R7 R3 // load upper 3 bits into R7
 MOVE R0 R7
-
-// move upper 3 bits into MSB position and store in R1
 LSLI 5
 MOVE R1 R2
-
-// move lower 5 bits into LSB position and store in R0
-MOVE R0 R6
+MOVE R0 R6 // move lower 4 bits into LSB position and store in R0
 LSRI 4
 MOVE R0 R2
-
-// use XOR to combine into 1 byte stored in R2
-XOR 
-// right shift flag bits by three to store p8
-FLAG R0 R2
-LSRI 3
-
-// store p8 as the first bit in R4
-MOVE R4 R2
-
-// CALCULATE P4
-
-// get bits 11-8, 4-2 into one byte:
-
-// move upper 4 bits into MSB position and store in R1
-
-// upper 3 bits
-MOVE R0 R7
+XOR // COMBINE UPPER 8 BITS INTO R2
+FLAG R0 R2 // calculate parity of upper 8 bits
+LSRI 3 
+MOVE R4 R2 // p8 stored as first bit in R4
+MOVE R0 R7 // begin calculating p4: need bits 11-8, 4-2 in one byte
 LSLI 5
-MOVE R1 R2
-
-// 4th bit
-MOVE R0 R6 // isolate
+MOVE R1 R2 // R1 stores upper 3 bits 
+MOVE R0 R6 // isolate (grabbing 4th bit)
 LSRI 7
 MOVE R0 R2 // move into correct position on R1
 LSLI 4
 MOVE R0 R2
 XOR 
 MOVE R1 R2
-// move lower 3 bits into LSB position and store in R0
-MOVE R0 R6
+MOVE R0 R6 // move lower 3 bits into LSB position and store in R0
 LSRI 1
 MOVE R0 R2
 LSLI 5
 MOVE R0 R2
 LSRI 4
 MOVE R0 R2
-
-XOR // use XOR to combine 7 bits into same byte
-// right shift flag bits by 3 to store p4 - left shift for right position in R4
+XOR // use XOR to combine 7 bits into same byte 
 FLAG R0 R2
 LSRI 3
 MOVE R0 R2
 LSLI 1 
-
-// store p4 as second bit in R4
 MOVE R0 R2
 MOVE R1 R4
 XOR 
-MOVE R4 R2
-
-// CALCULATE P2
-
-// move upper 6 bits into MSB position and store in R1
-
-// upper 2 bits
-MOVE R0 R7
-LSRI 1
+MOVE R4 R2 // p4 now stored as second bit in R4
+MOVE R0 R7 // calculate p2 (bits 11, 10, 7, 6, 4, 3 , 1)
+LSRI 1 // storing bits 11, 10 in R1
 MOVE R0 R2
 LSLI 6
 MOVE R1 R2
-
-// bits 3,4
-MOVE R0 R6
-//isolate data
-LSLI 1
+MOVE R0 R6 // bits 3,4
+LSLI 1 //isolate data
 MOVE R0 R2
 LSRI 6
 MOVE R0 R2
 LSLI 4 // move into correct position for R1
 MOVE R0 R2
-// combine with upper 2 bits and store
-XOR
+XOR // combine with upper 2 bits and store
 MOVE R1 R2
-
-// bits 5,6
-
-MOVE R0 R6 
-// isolate data
-LSLI 4
+MOVE R0 R6 // bits 5,6 (BITS 4, 3)
+LSLI 4 // isolate data
 MOVE R0 R2
 LSRI 6
 MOVE R0 R2
 LSLI 2 // get in correct position 
 MOVE R0 R2
-//combine with upper 4 bits and store
-XOR 
+XOR //combine with upper 4 bits and store 
 MOVE R1 R2
-
-// move lowest bit into LSB position and store in R0
-
-MOVE R0 R6
-// isolate data
-LSLI 7
+MOVE R0 R6 // move lowest bit into LSB position and store in R0 (BIT 1)
+LSLI 7 // isolate data
 MOVE R0 R2
 LSRI 7 // get in correct position
 MOVE R0 R2
 XOR 
-
-//right shift flag bits by 3 to store p2
-FLAG R0 R2
-LSRI 3
-// left shift by 2 to get into correct position in p4
+FLAG R0 R2 //right shift flag bits by 3 to store p2
+LSRI 3     
 MOVE R0 R2
-LSLI 2
+LSLI 2 // left shift by 2 to get into correct position in p4
 MOVE R0 R2
 MOVE R1 R4
 XOR
-MOVE R4 R2
-
-// CALCULATE P1
-
-// move upper 5 bits into MSB position and store  in R1
-
-// bit 1
-MOVE R0 R7
+MOVE R4 R2 // p2 now stored as third bit in R4
+MOVE R0 R7 // CALCULATE P1 // move upper 5 bits into MSB position and store  in R1 // bit 1 (BIT 11)
 LSRI 2 // isolate data
 MOVE R0 R2
 LSLI 7 // move into correct position
 MOVE R1 R2 // store in R1
-
-// bit 2
-MOVE R0 R7
+MOVE R0 R7 // bit 2 (BIT 9)
 LSLI 7// isolate data
 MOVE R0 R2
 LSRI 1 // move into correct position
 MOVE R0 R2
 XOR // combine with bit 1 and store in R1
 MOVE R1 R2
-
-// bit 3
-MOVE R0 R6
+MOVE R0 R6 // bit 3 (BIT 7)
 LSLI 1 // isolate data
 MOVE R0 R2
 LSRI 7 // isolate data
@@ -181,9 +108,7 @@ LSLI 5 // move into correct position
 MOVE R0 R2
 XOR // combine with bits 1,2 and store in R1
 MOVE R1 R2
-
-// bits 4,5
-MOVE R0 R6
+MOVE R0 R6 // bits 4,5 (BITS 4, 5)
 LSLI 3 // isolate data
 MOVE R0 R2
 LSRI 6 // isolate data
@@ -192,183 +117,137 @@ LSLI 3 // move into correct position
 MOVE R0 R2
 XOR // combine with bits 1-3 and store in R1
 MOVE R1 R2
-
-// move lower 2 bits into LSB position and store in R0
-// bits 7,8
-MOVE R0 R6
+MOVE R0 R6 // move lower 2 bits into LSB position and store in R0 (BITS 7,8)
 LSLI 6 // isolate data
 MOVE R0 R2
 LSRI 6 // move into correct position
 MOVE R0 R2
 XOR // combine all 7 bits onto same byte
-
-// calculate parity and store as 4th LSB in R4
-FLAG R0 R2 // right shift flag by 3 to store p1
+FLAG R0 R2 // calculate parity and store as 4th LSB in R4, right shift flag by 3 to store p1
 LSRI 3
 MOVE R0 R2 // left shift p1 by 3 to store it in correct position
 LSLI 3
 MOVE R0 R2
-//combine with p8,4,2 and store in R4
-MOVE R1 R4
+MOVE R1 R4 //combine with p8,4,2 and store in R4 - p1 now stored as 4th bit
 XOR
 MOVE R4 R2
-
-// CALCULATE P0
-
-MOVE R0 R6 // calculate parity of lower 8 bits
-
+MOVE R0 R6 // calculate parity of lower 8 bits // CALCULATE P0 (ALL BITS)
 FLAG R0 R0 // right shift by 3 to isolate parity
 LSRI 3
 MOVE R0 R2 
-// shift left 3 to get in correct position for XOR with upper 3 bits
-LSLI 3
+LSLI 3 // shift left 3 to get in correct position for XOR with upper 3 bits
 MOVE R0 R2
-
-// combine parity of lower 8 bits with upper 3 bits
-MOVE R1 R7 
-XOR
-// calculate total parity of all 11 bits
+MOVE R1 R7 // combine parity of lower 8 bits with upper 3 bits
+XOR // calculate total parity of all 11 bits
 FLAG R0 R2
 LSRI 3 // right shift 3 to isolate parity
 MOVE R0 R2
 LSLI 4 // left shift 4 to get in correct position for XOR with other parities
-MOVE R0 R2
 MOVE R1 R4
 XOR
 FLAG R0 R2
 LSRI 3 // right shift 3 to isolate parity
 MOVE R0 R2
 LSLI 4 // left shift 4 to get in correct position on R4
+MOVE R0 R2
 MOVE R1 R4
 XOR 
-MOVE R4 R2
-// ALL PARITIES NOW CALCULATED!
-
-
-// get lower 8 bits of result all into same byte
-MOVE R0 R6
-// isolate bits 4-2 of input
-LSRI 1
+MOVE R4 R2 // ALL PARITIES NOW CALCULATED!
+MOVE R0 R6 // get lower 8 bits of result all into same byte
+LSRI 1 // isolate bits 4-2 of input
 MOVE R0 R2
 LSLI 5
 MOVE R1 R2
-
-// isolate p4
-MOVE R0 R4
+MOVE R0 R4 // isolate p4
 LSRI 1
 MOVE R0 R2
 LSLI 7
 MOVE R0 R2
-// get into correct positioning for XOR
-LSRI 3
+LSRI 3 // get into correct positioning for XOR
 MOVE R0 R2
 XOR 
 MOVE R1 R2 // R1 now stores 4 highest bits of lowest byte of data
-
-//isolate bit 1 of input
-MOVE R0 R6
+MOVE R0 R6 //isolate bit 1 of input
 LSLI 7 
 MOVE R0 R2
-// get into correct positioning for XOR
-LSRI 4 
+LSRI 4  // get into correct positioning for XOR
 MOVE R0 R2
 XOR 
 MOVE R1 R2 // R1 now stores 5 highest bits of lowest byte of data
-
-// isolate bits 2,1,0 of parity
-MOVE R0 R4
-LSRI 2
-MOVE R0 R2
+MOVE R0 R4 // isolate bits 2,1, 0 of parity
+LSRI 2  
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p0, p1, p2)
+LSLI 7
+MOVE R0 R2 // R0 now stores (p2, 0, 0, 0, 0, 0, 0, 0) 
+LSLI 5 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p2, 0, 0)
 XOR
+MOVE R1 R2 // R1 now stores (b4, b3, b2, p4, b1, p2, 0, 0)
+MOVE R0 R4 // R0 now stores (0, 0, 0, p0, p1, p2, p4, p8)
+LSRI 2 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p0, p1, p2)
+LSRI 1 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, p0, p1)
+LSLI 7
+MOVE R0 R2 // R0 now stores (p1, 0, 0, 0, 0, 0, 0, 0)
+LSRI 6
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, p1, 0)
+XOR
+MOVE R1 R2  // R1 now stores (b4, b3, b2, p4, b1, p2, p1, 0)
+MOVE R0 R4 // R0 now stores (0, 0, 0, p0, p1, p2, p4, p8)
+LSRI 2
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, p0, p1, p2)
+LSRI 2
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, 0, p0)
+XOR // R2 now stores (b4, b3, b2, p4, b1, p2, p1, p0)
 MOVE R1 R2 // R1 now stores all 8 bits of lowest byte of data
-// place lower 8 bits in correct place of memory 
-MOVE R0 R5
-MOVE R5 R1
-// calculate memory address of lower 8 by adding R3, R5, subtracting 1
-MOVE R1 R3
-ADD
-MOVE R6 R0  // R6 now stores where we are placing mem in data 
-MOVE R7 R1  // r7 now stores i
-MOVE R0 R2
-SETI 1
-MOVE R1 R2
-SUB // R2 now stores location in memory to place lower 8
-
-STORE R2 R5
-
-MOVE R0 R2
-SETI 1
-MOVE R1 R2
-ADD // R2 now stores location in memory to place upper 8 bits
-MOVE R5 R2
-// move back in the upper 8 bits of data
-LOAD R3 R7 // R3 now stores the upper 3 bits of input data
-
-MOVE R0 R3
+MOVE R5 R1 // R5 stores lower 8 bits
+MOVE R0 R7 // get upper 8 bits of data all into the same byte
 LSLI 5
-MOVE R1 R2 // R1 now stores the upper 3 bits of output data
-
-// calculate address in memory of lower 8 bits of input data
-MOVE R0 r7
-SUBI 1
-LOAD R3 R2 // R3 now stores lower 8 bits of input data
-MOVE R0 R3 // isolate highest 4 bits, of lower 8 of input data
+MOVE R1 R2
+MOVE R0 R6 
 LSRI 4
 MOVE R0 R2
-LSRI 3
+LSLI 1
 MOVE R0 R2
-XOR 
-MOVE R1 R2 // R1 now stores highest 7 bits of output data
-MOVE RO R4 // isolate 8th bit of output data
-LSLI 7
+XOR
+MOVE R1 R2
+MOVE R0 R4
+LSLI 7 
 MOVE R0 R2
 LSRI 7
 MOVE R0 R2
-XOR // R2 now stores highest 8 bits of output data
-STORE R5 R2 // highest 8 bits of output data now stored in appropriate location in memory 
-// increment i by one to account for next iteration of loop
-MOVE R0 R7
-ADDI 1 
-MOVE R3 R2
-// clear R0-R2, R4-R7 for next iteration of Loop
-SETI 0
+XOR 
+MOVE R4 R2 // R4 now stores upper 8 output bits
+MOVE R1 R3 // calculate memory address of lower 8 by adding r3(i) + 30 and subtracting one
+SETI 1
+MOVE R0 R2 
+LSLI 5
+MOVE R0 R2
+SUBI 3
+MOVE R0 R2
+ADD // r2 now stores where we are placing lower 8 bits in dat_mem
+STORE R2 R5
+MOVE R0 R2
+ADDI 1 // r2 now stores where we are placing upper 8 bits in data
+STORE R2 R4
+SETI 0 // clear R0-R2, R4-R7 for next iteration of Loop
 MOVE R0 R2
 MOVE R1 R2
 MOVE R4 R2
 MOVE R5 R2
 MOVE R6 R2
 MOVE R7 R2
-BSUB 000// branch to line 1 - 000 corresponds to 1 in LUT
+MOVE R0 R3
+ADDI 1 // add 1 to i to accomodate for next loop
+MOVE R3 R2
+SETI 0
+MOVE R0 R2
+MOVE R1 R2
+CMPI 0 // ALWAYS TRUE
+BEQ 0// branch to line 1 - 000 corresponds to 1 in LUT
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
 
