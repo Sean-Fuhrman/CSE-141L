@@ -385,7 +385,7 @@ MOVE R1 R2
 MOVE R0 R6
 XOR // data is now corrected - store it back in memory 
 STORE R7 R2 // corrected data is now stored in correct place in datmem
-BEQ  2       // MUST CHANGE TO B FOR FINAL VERSION!!!
+BUN 2       
 MOVE R5 R0
 SETI 1 // load in i to R3, if c8,c4,c2,c1 is greater then or equal to 8 then error is in second byte 
 MOVE R0 R2

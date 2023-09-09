@@ -9,9 +9,9 @@ public class kissTest {
         simulator.specs();
         simulator.loadCode(fileName);    
         for(int i = 0; i <= 29; i++) {
-            simulator.setMemVal(0b00000111, i); // LOWER 8 BITS - STORED IN R6
+            simulator.setMemVal(0b11111111, i); // LOWER 8 BITS - STORED IN R6
         }
-        simulator.executeInstructionsDebug(6360);
+        simulator.executeInstructionsDebug(500);
         for(int i = 0; i < 30; i+=2) {
             String lowerHamCode = Integer.toBinaryString(simulator.readMemVal(30 + i));
             String upperHamCode = Integer.toBinaryString(simulator.readMemVal(30 + i + 1));
@@ -25,7 +25,6 @@ public class kissTest {
         
             System.out.println("OUTPUT HAMMING CODE = " + upperHamCode + lowerHamCode + " for index " + i);
         }   
-        
         
     } 
     
