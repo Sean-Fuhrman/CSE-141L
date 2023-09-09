@@ -77,15 +77,15 @@ end
 
 always begin
   
-  for(int j=0; j<8; j++) begin
-    $display("Register %d = %d",j, DUT.reg_file1.registers[j]);
-  end
+  // for(int j=0; j<8; j++) begin
+  //   $display("Register %d = %d",j, DUT.reg_file1.registers[j]);
+  // end
   #5ns clk = 1;            // tic
-  $display("PC = %d", DUT.PC1.PC);
-  $display("Instruction = %b",DUT.Instruction);
-  $display("ALU OUT = %d",DUT.ALU1.ALU_out);
-  $display("ALU Arg 0  = %b", DUT.ALU1.ALU_arg_0);
-  $display("ALU Arg 1  = %b", DUT.ALU1.ALU_arg_1);
+  // $display("PC = %d", DUT.PC1.PC);
+  // $display("Instruction = %b",DUT.Instruction);
+  // $display("ALU OUT = %d",DUT.ALU1.ALU_out);
+  // $display("ALU Arg 0  = %b", DUT.ALU1.ALU_arg_0);
+  // $display("ALU Arg 1  = %b", DUT.ALU1.ALU_arg_1);
 
 
   // // for(int i=0; i<59; i++) begin
