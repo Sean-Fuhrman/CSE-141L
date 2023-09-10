@@ -18,7 +18,8 @@ module ALU(
   output logic ZERO,           // zero out flag
   output logic BEVEN,          // LSB of input B = 0
   output logic PARITY,         //parity of ALU arg 0
-  output logic EQUAL          //ALU arg 0 = ALU arg 1
+  output logic EQUAL,          //ALU arg 0 = ALU arg 1
+  output logic GT
     );
 	 
 	logic zero_flag = 0;
@@ -66,6 +67,11 @@ module ALU(
     end else begin
       BEVEN = 1'b0;
     end 
+	 if(ALU_arg_1 > ALU_arg_0) begin
+		GT = 1'b1;
+	 end else begin
+		GT = 1'b0;
+	 end
     // equal flag set 
     if(ALU_arg_0 == ALU_arg_1) begin
       EQUAL = 1'b1;

@@ -1,361 +1,267 @@
-// PRELOADED REGISTER VALUES
-// R0: 0
-// R1: 0
-// R2: 0
-// R3: 0 (used to index what byte in dat mem we are accessing) i
-// R4: 0 (used to index what bit we should be checking (as the first index in our pattern)) j
-// R5: 0 (used to store the byte in dat mem we are accessing) 
-// R6: PATTERN IN ITS LSB! (used to store the 5 bit pattern we are checking- assume in LSB)
-// R7: 0 (FREE USE)
-// PRELOADED MEMORY VALUES:
-// 0-31: stores the string we are checking our pattern against
-// 32: stores the 5 bit pattern we reference (MSB)
-// 33: 0 stores the # of times this pattern is found while not crossing byte boundaries
-// 34: 0 stores the # of bytes this pattern is found in 
-// 35: 0 stores the # of times this pattern is found, both crossing and not crossing byte boundaries
-
-// STEP ONE: CHECK FOR # OF BYTES PATTERN IS FOUND IN
-// increment R1 to store 32:
 SETI 1
-MOVE R1 R2
-LSLI 5
-move R0 R3
-CMP // if i is equal to 32, then bytes 0-31 have been checked, can move to next step
-BADD 2 // 010 stores the PC corresponding to the first instruction in prework section of step 2 in LUT
-LOAD R5 R3 // stores the byte we are referencing the pattern against
-MOVE R0 R5
-// figure out amount we need to shift left and right to store 5 bits we want to check against as LSB's
-MOVE R1 R4 // left shift by current bit index to clear all data to left of first bit
-LSL // MUST ADD INSTRUCTION TO DATABASE!!!!
+MOVE R0 R2 
+LSLI 5 // R2 now stores 32
 MOVE R0 R2
-LSR // MUST ADD INSTRUCTION TO DATABASE!!!! (move back to original bit position)
-MOVE R5 R2 // store byte with all unnecessary MSB's clear back in R5
-// clear R0-R2 for arithmetic op.
-SETI 0
-MOVE R0 R2
-MOVE R1 R2
-// Set R0 to amnt. of times we would need to shift right if R4 = 0
-SETI 3
-MOVE R0 R2
-// set R1 to what our current bit index actually is
+MOVE R1 R3 
+CMP
+BEA 3 // if i == 32 progress to stage 2
+SETI 0 
+LOAD R6 R3 // load current byte we are looking at into R6
+SETI 4
+MOVE R0 R2 
+MOVE R1 R4 
+CMP
+BEA 2 // if j = 4, have looked at previous indices, need to reset j + increment i 
+MOVE R0 R6 // left shift by j to destroy first j bits of data we have already looked at
 MOVE R1 R4
-SUB
-MOVE R1 R2 // R1 now stores the amount of times we need to right shift in order to have our 5 bits in LSB position
-MOVE R0 R5
+LSL 
+MOVE R0 R2
+SETI 3// right shift by 3 to get 5 bits of data into correct position 
+MOVE R1 R2
 LSR
-MOVE R5 R2 // R5 now stores the 5 bits we are comparing our pattern to, in the correct position
-// update indices for next check:
-MOVE R0 R5
-MOVE R1 R6
-CMP // if R5, R6 are equal, set i to i+1, j to zero, increment dat_mem[34] by one and return to beginning of step one
-BNE 1 // corresponds to location where unequal should start in LUT if unequal set j = j + 1 and continue, or if j = 3, reset j increment i by one
-// IF PATTERN FOUND
-// incrementing dat_mem by one:
-SETI 1 // step 1: store 34 in R5
-MOVE R0 R2
-LSLI 5
-MOVE R0 R2 // r0 now stores 32- add 2
-ADDI 2
-MOVE R5 R0// R5 now stores 34
-LOAD R1 R5 // (R1 now stores dat_mem[34]) 
-SETI 1 //step 2: set R2 = dat_mem[34] + 1
-MOVE R0 R2 // R0 now stores 1, R1 dat_mem[34]
-ADD // R2 now stores dat_mem[34] + 1
-STORE R2 R5 // dat_mem[34] now incremented by one!
-// setting i, j to correct values:
-//j
-SETI 0
-MOVE R4 R2
-// i 
-SETI 1
-MOVE R1 R2
-MOVE R0 R3
-ADD 
-MOVE R3 R2
-// return to beginning of step one
-CMP R2 R2 //(always equal, always branch)
-BADD 0 // corresponds to location where step one begins in LUT
-// IF PATTERN NOT FOUND
-// if j points to 4th index, reset j, set i = i + 1, else set j = j + 1, both cases go back to top of step one
-CMPI R4 3
-BADDI 5 // if 4th index jump 5 lines
-MOVE R0 R4
-ADDI 1
-CMP R2 R2 // always equal
-BADD 0 // jump back to top of step one
-SETI 0
-MOVE R4 R2 // set j = 0
-MOVE R0 R5
-ADDI 1
-MOVE R5 R2 // set i = i + 1
-CMP R2 R2 // always equal
-BADD 0 // jump back to top of step one
-
-// STEP TWO: CHECK FOR TOTAL # OF TIMES PATTERN IS FOUND W/O CROSSING BYTE BOUNDARIES
-// prework before step 2:
-// clear out any data left over from step one
-SETI 0
-MOVE R0 R2
-MOVE R1 R2
-MOVE R3 R2
-MOVE R4 R2 
-MOVE R5 R2 
-// R6 stores pattern! no need to clear!
-MOVE R7 R2
-// step 2 start:
-// increment R2 to store 32 
-SETI 1
-MOVE R0 R2
-LSLI 5
-CMP R2 R3 // if i equals 32 then bytes 0-31 must have already been checked and we can progress to step 3
-BADD 5 // 101 stores location of beginning of step 3 in LUT
-// load byte we are currently comparing to pattern into R5
-LOAD R5 R3 // R5 = dat_mem[i]
-// perform bit shifting to get correct data into correct bit positions (SAME MANIPULATIONS AS STEP 1)
-MOVE R1 R4 // left shift by current bit index to clear all data to left of first bit
-LSL // MUST ADD INSTRUCTION TO DATABASE!!!!
-MOVE R0 R2
-LSR // MUST ADD INSTRUCTION TO DATABASE!!!! (move back to original bit position)
-MOVE R5 R2 // store byte with all unnecessary MSB's clear back in R5
-// clear R0-R2 for arithmetic op.
-SETI 0
-MOVE R0 R2
-MOVE R1 R2
-// Set R0 to amnt. of times we would need to shift right if R4 = 0
-SETI 3
-MOVE R0 R2
-// set R1 to what our current bit index actually is
-MOVE R1 R4
-SUB
-MOVE R1 R2 // R1 now stores the amount of times we need to right shift in order to have our 5 bits in LSB position
-MOVE R0 R5
-LSR
-MOVE R5 R2 // R5 now stores the 5 bits we are comparing our pattern to, in the correct position
-// increment R7 to store 33 - SETS UP NEXT STEP!
+MOVE R0 R2 // R0 stores 5 bit sequence we are looking at, in LSB's
+MOVE R1 R7 // R1 stores pattern
+CMP 
+BNA 1 // if pattern matches, set found and increment dat_mem[33] by one
+SETI 1 // IF PATTERN MATCHES
+MOVE R5 R2 // update found if we got a match
 SETI 1 
-MOVE R0 R2
+MOVE R0 R2 
 LSLI 5
 MOVE R0 R2
 ADDI 1 // R2 now stores 33
-CMP R5 R6 // if pattern = 5 bits of string we are looking at, update dat_mem[33] by one
-BSUBI 5 // if equal, move PC 5 lines forward
-MOVE R7 R2
-LOAD R0 R7 // dat_mem[33] now stored in R0
-ADDI 1 // dat_mem[33] + 1 now stored in R2
-STORE R7 R2 // dat_mem[33] = dat_mem[33] + 1
-// SET UP NEXT ITERATION OF LOOP
-// if j is at 4th highest index, reset j set i = i + 1, else set j = j + 1- return to top of step 2 in both cases
-CMPI R4 3
-BADDI 6 // if reset needed jump forward 7 lines
-MOVE R0 R4 // still looking at same byte, increment j by one and return to top of step 2
+MOVE R1 R2
+LOAD R0 R1 // R0 now stores dat_mem[33]
+ADDI 1
+STORE R1 R2 // dat_mem[33] = dat_mem[33] + 1
+MOVE R0 R4  // IF PATTERN MISS OR AFTER PATTERN HIT
 ADDI 1 
 MOVE R4 R2 // j = j + 1
-CMP R6 R6 // always true
-BADD 4 // 100 stores location of top of step 2 instruction in LUT
-SETI 0// reset true - set j = 0, i = i + 1
-MOVE R4 R2 // j = 0
+BUN 0 // MUST CHANGE TO BUN FOR FINAL VERSION
+SETI 0 // IF J = 4
+MOVE R4 R2 // J = 0
 MOVE R0 R3
 ADDI 1
 MOVE R3 R2 // i = i + 1
-CMP R6 R6 // always true
-BADD 4 // 100 stores location of top of step 2 instruction in LUT
-
-// STEP 3: COUNT TOTAL NUMBER OF TIMES PATTERN OCCURS IN STRING, INCLUDING BYTE BOUNDARY CROSSING
-// place result in dat_mem[35]
-// VERY SIMILAR TO STEP 2:
-// KEY DIFFERENCES 
-// 1) no need to check for if we have finished the loop at the beginning- check occurs at the end and will set done flag
-// 2) once j progresses past 4th index instead of immediatly resetting j, incrementing i we check combining with byte at i + 1 for four loops (loop unroll)
-// prework before step 3 - clear out any data leftover from step 2
-SETI 0
+SETI 1   // load in dat_mem[34]
 MOVE R0 R2
-MOVE R1 R2
-MOVE R3 R2
-MOVE R4 R2 
-MOVE R5 R2 
-// R6 stores pattern! no need to clear!
-MOVE R7 R2
-// loop 3 start:
-// increment R2 to store 32 
-SETI 1
+LSLI 5 
 MOVE R0 R2
-LSLI 5
-CMP R2 R3 // if i equals 32 then bytes 0-31 must have already been checked and we can progress to step 3
-BADD 6 // 110 stores location of beginning of step 3 in LUT
-// load byte we are currently comparing to pattern into R5
-LOAD R5 R3 // R5 = dat_mem[i]
-// perform bit shifting to get correct data into correct bit positions (SAME MANIPULATIONS AS STEP 1)
-MOVE R1 R4 // left shift by current bit index to clear all data to left of first bit
-LSL // MUST ADD INSTRUCTION TO DATABASE!!!!
-MOVE R0 R2
-LSR // MUST ADD INSTRUCTION TO DATABASE!!!! (move back to original bit position)
-MOVE R5 R2 // store byte with all unnecessary MSB's clear back in R5
-// clear R0-R2 for arithmetic op.
-SETI 0
-MOVE R0 R2
-MOVE R1 R2
-// Set R0 to amnt. of times we would need to shift right if R4 = 0
-SETI 3
-MOVE R0 R2
-// set R1 to what our current bit index actually is
-MOVE R1 R4
-SUB
-MOVE R1 R2 // R1 now stores the amount of times we need to right shift in order to have our 5 bits in LSB position
-MOVE R0 R5
-LSR
-MOVE R5 R2 // R5 now stores the 5 bits we are comparing our pattern to, in the correct position
-// increment R7 to store 35 - SETS UP NEXT STEP!
+ADDI 2
+LOAD R0 R2 // r0 = dat_mem[34]
+MOVE R1 R5
+ADD // r2 = dat_mem[34] + found
+MOVE R5 R2
 SETI 1 
 MOVE R0 R2
 LSLI 5
 MOVE R0 R2
-ADDI 3 // R2 now stores 35
-CMP R5 R6 // if pattern = 5 bits of string we are looking at, update dat_mem[33] by one
-BSUBI 5 // if equal, move PC 5 lines forward
-MOVE R7 R2
-LOAD R0 R7 // dat_mem[35] now stored in R0
-ADDI 1 // dat_mem[35] + 1 now stored in R2
-STORE R7 R2 // dat_mem[35] = dat_mem[35] + 1
-// set up next instance of loop:
-// if j < 3, just increment j by one and return to the top of the loop
-CMPI R4 3 
-BADDI 6 // if j == 3 skip 6 instructions forward
+ADDI 2
+STORE R2 R5 //dat_mem[34] = dat_mem[34] + found
+SETI 0 
+MOVE R5 R2 // reset found
+BUN 0 // MUST CHANGE TO BUN FOR FINAL VERSION STAGE ONE WORKS!!!
+SETI 0 // POST STAGE ONE RESET OF ALL VALUES
+MOVE R3 R2
+MOVE R4 R2
+MOVE R5 R2
+MOVE R6 R2
+SETI 1
+MOVE R0 R2
+LSLI 5
+MOVE R0 R2
+SUBI 1 
+MOVE R1 R2 // R1 now stores 31
+MOVE R0 R3
+CMP 
+BEA 5 // if i is pointing at final byte only count current byte and exit program
+LOAD R5 R3 // load current byte we are looking at into R5
+MOVE R0 R3
+ADDI 1
+LOAD R6 R2 // load current byte + 1 we are looking at into R6
+MOVE R0 R5 // COMPARE BITS 7-3 OF R5 TO PATTERN
+LSRI 3
+MOVE R0 R2
+MOVE R1 R7
+CMP
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1
+MOVE R4 R2 
+MOVE R0 R5 // COMPARE BITS 6-2 OF R5 TO PATTERN
+LSLI 1
+MOVE R0 R2
+LSRI 3
+MOVE R0 R2 
+MOVE R1 R7 
+CMP
+BNR 4 // if unequal branch 4 lines forward 
+MOVE R0 R4 // if equal increment count by one
+ADDI 1
+MOVE R4 R2 
+MOVE R0 R5 // COMPARE BITS 5-1 OF R5 TO PATTERN
+LSLI 2 
+MOVE R0 R2 
+LSRI 3 
+MOVE R0 R2 
+MOVE R1 R7
+CMP
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1 
+MOVE R4 R2 
+MOVE R0 R5 // COMPARE BITS 4-0 OF R5 TO PATTERN
+LSLI 3
+MOVE R0 R2 
+LSRI 3
+MOVE R0 R2
+MOVE R1 R7
+CMP 
+BNR 4
 MOVE R0 R4
 ADDI 1
-MOVE R4 R2 // j = j + 1
-CMPI R4 R4 // always true
-BADD 6 // 110 stores location of start of step 3
-// FOLLOWING IS THE LOOP UNRAVEL FOR IF j = 3!
-// before accessing the next byte we must check if our current byte index is 31
-// store 31 in R2
-SETI 1
+MOVE R4 R2
+MOVE R0 R5 // COMPARE BITS 3-0 OF R5 + BIT 7 OF R7 TO PATTERN
+LSLI 4
 MOVE R0 R2
-LSLI 5
-MOVE R0 R2
-SUBI 1 // r2 now stores 31
-CMP R2 R3 // if i == 31 end program
-BADD 7 // 7 corresponds to DONE flag in LUT
-// if we are not at 31 load in next byte
-// load byte i into R5
-LOAD R5 R3
-MOVE R0 R3
-ADDI 1 // R2 now stores i + 1
-// load byte i + 1 into R7
-LOAD R7 R2
-// check 4 LSB's of byte i + MSB of byte i + 1
-MOVE R5 R0 // isolate 4 LSBS of byte i 
-LSLI 4 
-MOVE R1 R2 // R1 now stores 4 LSB's of byte i
-MOVE RO R7 // isolate MSB of byte i
+LSRI 3
+MOVE R1 R2 // R1 now stores (0, 0, 0, b3, b2, b1, b0, 0)
+MOVE R0 R6
 LSRI 7
-MOVE R0 R2 
-// move into correct position
-LSLI 3
-MOVE R0 R2
-XOR // R2 now stores 4 LSB's of byte i, followed by MSB of byte i + 1
-LSRI 3 // move into right place for comparison
-MOVE R7 R2 // store result in R7
-// PLACE 35 in R1- USED FOR NEXT STEP!
-SETI 1
-MOVE R0 R2
-LSLI 5
-MOVE R0 R2
-ADDI 3 
-MOVE R1 R2// R1 now stores 35
-CMP R6 R7 // check if pattern matches
-BSUBI 4 // if not equal skip four instructions
-LOAD R0 R1 // R0 = dat_mem[35]
-ADDI 1 // dat_mem[35] = dat_mem[35] ++
-STORE R1 R2 // place back into memory 
-// now check if pattern matches 3 LSB's of byte i concatonated with 2 MSB's of byte i + 1
-LOAD R5 R3 // load byte i into R5
-MOVE R0 R3
-ADDI 1
-LOAD R7 R2 // load byte i + 1 into R7
-MOVE R0 R5 // isolate 3 LSB's of byte i 
-LSLI 5
-MOVE R1 R2
-MOVE R0 R7 // isolate 2 MSB's of byte i
-LSRI 6 
-MOVE R0 R2 // move 2 MSB's of byte i + 1 into correct position for concatonation 
-LSLI 3 
-MOVE R0 R2
-XOR // R2 now stores 3 LSB's of byte i, followed by 2 MSB's of byte i + i
-MOVE R0 R2 // right shift by 3 to get to correct spot for comparison
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, 0, c7)
+XOR
+MOVE R0 R2 // R2 now stores (0, 0, 0, b3, b2, b1, b0, c7)
+MOVE R1 R7
+CMP 
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1 
+MOVE R4 R2 
+MOVE R0 R5 // COMPARE BITS 2-0 OF R5 + BITS 7-6 OF R6 TO PATTERN
+LSLI 5 
+MOVE R0 R2 // R0 now stores (b2, b1, b0, 0, 0, 0, 0, 0)
 LSRI 3 
-MOVE R7 R2 // store for comparision in R7
-// place 35 in R1 - to be used for next step!
-SETI 1
-MOVE R0 R2
-LSLI 5
-MOVE R0 R2
-ADDI 3 
-MOVE R1 R2// R1 now stores 35
-CMP R6 R7 // check if pattern matches
-BSUBI 4 // if not equal skip four instructions
-LOAD R0 R1 // R0 = dat_mem[35]
-ADDI 1 // dat_mem[35] = dat_mem[35] ++
-STORE R1 R2 // place back into memory 
-// now check if pattern matches 2 LSB's of byte i concatonated with 3 MSB's of byte i + 1
-LOAD R5 R3 // load byte i into R5
-MOVE R0 R3
-ADDI 1
-LOAD R7 R2 // load byte i + 1 into R7
-MOVE R0 R5 // isolate 2 LSB's of byte i 
+MOVE R1 R2 // R1 now stores (0, 0, 0, b2, b1, b0, 0, 0)
+MOVE R0 R6
+LSRI 6 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, 0, c7, c6)
+XOR 
+MOVE R0 R2 // R0 now stores (0, 0, 0, b2, b1, b0, c7, c6)
+MOVE R1 R7
+CMP 
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1 
+MOVE R4 R2 
+MOVE R0 R5  // COMPARE BITS 1-0 OF R5 + BITS 7-5 OF R6 TO PATTERN
 LSLI 6
-MOVE R1 R2
-MOVE R0 R7 // isolate 3 MSB's of byte i + 1
+MOVE R0 R2
+LSRI 3 
+MOVE R1 R2 // R1 now stores (0, 0, 0, b1, b0, 0, 0, 0)
+MOVE R0 R6 
 LSRI 5
-MOVE R0 R2 // get 3 MSB's of byte i + 1 into correct location for concatination 
-LSLI 3
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, 0, c7, c6, c5)
+XOR 
+MOVE R0 R2 
+MOVE R1 R7 
+CMP 
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1 
+MOVE R4 R2 
+MOVE R0 R5 // COMPARE BIT 0 OF R5 + BITS 7-4 OF R6 TO PATTERN
+LSLI 7
 MOVE R0 R2
-XOR // R2 now stores 2 LSB's of byte i , followed by 3 MSB's of byte i + 1
-MOVE R0 R2
-LSRI 3 // shift 3 bits right to get to correct spot for comparision
-MOVE R7 R2 // store for comparision in R7
-// place 35 in R1 - to be used for next step!
-SETI 1
-MOVE R0 R2
-LSLI 5
-MOVE R0 R2
-ADDI 3 
-MOVE R1 R2// R1 now stores 35
-CMP R6 R7 // check if pattern matches
-BSUBI 4 // if not equal skip four instructions
-LOAD R0 R1 // R0 = dat_mem[35]
-ADDI 1 // dat_mem[35] = dat_mem[35] ++
-STORE R1 R2 // place back into memory 
-// now finally check if pattern matches LSB of byte i, plus 4 MSB's of byte i + 1
-LOAD R5 R3 // load byte i into R5
-MOVE R0 R3
-ADDI 1
-LOAD R7 R2 // load byte i + 1 into R7
-MOVE R0 R5 // isolate lowest bit of byte i
-LSLI 7 
-MOVE R1 R2
-MOVE R0 R7 // isolate 4 highest bits of byte i + 1
+LSRI 3
+MOVE R1 R2 // R1 now stores (0, 0, 0, b0, 0, 0, 0, 0)
+MOVE R0 R6
 LSRI 4
-MOVE R0 R2 // move to correct position for concatonation 
-LSLI 3 
+MOVE R0 R2 // R0 now stores (0, 0, 0, 0, c7, c6, c5, c4)
+XOR
 MOVE R0 R2
-XOR // R2 now stores LSB of byte i concatonated with 4 MSB's of byte i + 1
-MOVE R0 R2 // shift 3 bits right to get to correct spot for comparision 
-MOVE R7 R2 
-// place 35 in R1 - to be used for next step!
-SETI 1
+MOVE R1 R7 
+CMP
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1 
+MOVE R4 R2 
+SETI 1  // update dat_mem 35 by count, i by one, clear count and return to top
 MOVE R0 R2
 LSLI 5
 MOVE R0 R2
-ADDI 3 
-MOVE R1 R2// R1 now stores 35
-CMP R6 R7 // check if pattern matches
-BSUBI 4 // if not equal skip four instructions
-LOAD R0 R1 // R0 = dat_mem[35]
-ADDI 1 // dat_mem[35] = dat_mem[35] ++
-STORE R1 R2 // place back into memory 
-// we are now finished with loop unrolling and can return to the top of step 3 to check on the next bit!
-CMP R6 R6 // always true 
-BADD 6 // 6 stores beginning location of step 3 in LUT
-
-
-
+ADDI 3 // R2 now stores 35 
+LOAD R0 R2 // R0 now stores dat_mem[35]
+MOVE R1 R4
+ADD // R2 now stores dat_mem[35] + count
+MOVE R4 R2
+SETI 1
+MOVE R0 R2 
+LSLI 5
+MOVE R0 R2
+ADDI 3 // R2 now stores 35
+STORE R2 R4 // dat_mem[35] = dat_mem[35] + count
+MOVE R0 R3
+ADDI 1 
+MOVE R3 R2 // i = i + 1
+SETI 0 
+MOVE R4 R2 // count = 0 
+BUN 4 // branch to beginning SWITCH TO BUN FOR FINAL SUBMIT
+LOAD R5 R3 // load current byte we are looking at into R5
+MOVE R0 R5 // COMPARE BITS 7-3 OF R5 TO PATTERN
+LSRI 3
+MOVE R0 R2
+MOVE R1 R7
+CMP
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1
+MOVE R4 R2 
+MOVE R0 R5 // COMPARE BITS 6-2 OF R5 TO PATTERN
+LSLI 1
+MOVE R0 R2
+LSRI 3
+MOVE R0 R2 
+MOVE R1 R7 
+CMP
+BNR 4 // if unequal branch 4 lines forward 
+MOVE R0 R4 // if equal increment count by one
+ADDI 1
+MOVE R4 R2 
+MOVE R0 R5 // COMPARE BITS 5-1 OF R5 TO PATTERN
+LSLI 2 
+MOVE R0 R2 
+LSRI 3 
+MOVE R0 R2 
+MOVE R1 R7
+CMP
+BNR 4 // if unequal branch 4 lines forward
+MOVE R0 R4 // if equal increment count by one
+ADDI 1 
+MOVE R4 R2 
+MOVE R0 R5  // COMPARE BITS 4-0 OF R5 TO PATTERN
+LSLI 3
+MOVE R0 R2 
+LSRI 3
+MOVE R0 R2
+MOVE R1 R7
+CMP 
+BNR 4
+MOVE R0 R4
+ADDI 1
+MOVE R4 R2
+SETI 1
+MOVE R0 R2
+LSLI 5 // STORE dat_mem[35] + count into dat_mem[35]
+MOVE R0 R2
+ADDI 3 // R2 now stores 35 
+LOAD R0 R2 // R0 now stores dat_mem[35]
+MOVE R1 R4
+ADD // R2 now stores dat_mem[35] + count
+MOVE R4 R2
+SETI 1
+MOVE R0 R2 
+LSLI 5
+MOVE R0 R2
+ADDI 3 // R2 now stores 35
+STORE R2 R4 // dat_mem[35] = dat_mem[35] + count
+BUN 7 // raise done flag after finished- SWITCH TO BUN FOR FINAL SUBMIT

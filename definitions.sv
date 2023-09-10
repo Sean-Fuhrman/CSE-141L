@@ -24,6 +24,7 @@ const logic [2:0] kBER = 3'b001;
 const logic [2:0] kBNA = 3'b010;
 const logic [2:0] kBNR = 3'b011;
 const logic [2:0] kBUN = 3'b100;
+const logic [2:0] kBGT = 3'b101;
 
 // Enum names for data operations
 

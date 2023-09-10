@@ -36,6 +36,7 @@ wire     Data_read_en,	   // data_memory read enable
 			ZERO,		   // ALU output = 0 flag
 			BEVEN,		   // ALU ARG 0 is even flag
   			PARTIY,		   // ALU ARG 0 parity is even
+			GT,
   			EQUAL;		   // ALU input args are equal
 logic[15:0] cycle_ct;	   // standalone; NOT PC!
 logic       SC_IN;         // carry register (loop with ALU)
@@ -46,6 +47,7 @@ logic       SC_IN;         // carry register (loop with ALU)
 	.init (start), 
     .halt (halt),  // SystemVerilg shorthand for .halt(halt), 
     .instruction (Instruction),
+ .GT(GT),
     .EQUAL (EQUAL),
 	.CLK (CLK)  ,  // (CLK) is required in Verilog, optional in SystemVerilog
 	.PC            // program count = index to instruction memory
@@ -101,7 +103,8 @@ assign Reg_write_data = Select_data ? Data_memory_out : ALU_out;  // select data
       .ZERO(ZERO),          // zero out flag
       .BEVEN(BEVEN),         // LSB of input B = 0
       .PARITY(PARITY),        //parity of ALU arg 0
-      .EQUAL(EQUAL)         //ALU arg 0 = ALU arg 1
+      .EQUAL(EQUAL),         //ALU arg 0 = ALU arg 1
+		.GT(GT)
 	  );
   
 	assign Data_address = Source_0_data;

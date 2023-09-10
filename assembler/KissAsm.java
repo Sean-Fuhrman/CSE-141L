@@ -83,6 +83,7 @@ public class KissAsm {
             case("BNA"): return branchInstruction(line, "010");
             case("BNR"): return branchInstruction(line, "011");
             case("BUN"): return branchInstruction(line, "100");
+            case("BGT"): return branchInstruction(line, "101");
             case("MOV"): return datMoveInstruction(line, "00");
             case("FLA"): return datMoveInstruction(line, "01");
             case("LOA"): return datMoveInstruction(line, "10");

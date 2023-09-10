@@ -17,18 +17,29 @@ logic[  7:0] mat_str[32];      // message string parsed into bytes
 
 // your device goes here
 // explicitly list ports if your names differ from test bench's
-top_level DUT(.clk, start(req),.ack(done));	               // replace "proc" with the name of your top level module
+TopLevel DUT(.start(req), 
+	.CLK(clk), 
+	.halt(done)   );	               // replace "proc" with the name of your top level module
 
 initial begin
+  for(int i=0; i<256; i++) begin
+    DUT.data_mem1.core[i] = 8'h0;	     // clear data_mem
+  end
+  for(int j=0; j<8; j++) begin
+    DUT.reg_file1.registers[j] = 8'b0;  
+  end
+
+ 
 // program 3
 // pattern we are looking for; experiment w/ various values
-  pat = 5'b0000;//5'b10101;//$random;//5'b11111;
+  pat = $random;//5'b10101;//$random;//5'b11111;
   str2 = 0;
-  DUT.dm1.core[32] = {pat,3'b0};
+  DUT.reg_file1.registers[7] = pat;
+  DUT.data_mem1.core[32] = {pat,3'b0};
   for(int i=0; i<32; i++) begin
 // search field; experiment w/ various vales
-    mat_str[i] = 8'b00000000;//8'b01010101;// $random;// 8'b11111111;
-	DUT.dm1.core[i] = mat_str[i];   
+    mat_str[i] = $random;//8'b01010101;// $random;// 8'b11111111;
+	DUT.data_mem1.core[i] = mat_str[i];   
 	str2 = (str2<<8)+mat_str[i];
   end
   ctb = 0;
@@ -49,13 +60,13 @@ initial begin
   end        	    
   #10ns req   = 1'b1;      // pulse request to DUT
   #10ns req   = 1'b0;
-  wait(ack);               // wait for ack from DUT
+  wait(done);               // wait for ack from DUT
   $display();
   $display("start program 3");
   $display();
-  $display("number of patterns w/o byte crossing    = %d %d",ctb,DUT.dm1.core[33]);   //160 max
-  $display("number of bytes w/ at least one pattern = %d %d",cto,DUT.dm1.core[34]);   // 32 max
-  $display("number of patterns w/ byte crossing     = %d %d",cts,DUT.dm1.core[35]);   //253 max
+  $display("number of patterns w/o byte crossing    = %d %d",ctb,DUT.data_mem1.core[33]);   //160 max
+  $display("number of bytes w/ at least one pattern = %d %d",cto,DUT.data_mem1.core[34]);   // 32 max
+  $display("number of patterns w/ byte crossing     = %d %d",cts,DUT.data_mem1.core[35]);   //253 max
   #10ns $stop;
 end
 

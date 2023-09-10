@@ -8,6 +8,7 @@ module PC(
   input init,
   input [8:0] instruction,
   		EQUAL,
+		GT,
 		CLK,
   output logic halt,
   output logic[ 9:0] PC);
@@ -30,13 +31,15 @@ always @(posedge CLK)
 		if(instruction[5:3] == kBEA && EQUAL) begin
 			PC <= LUT_out;
 		end else if(instruction[5:3] == kBER && EQUAL) begin
-			PC <= PC + instruction[2:0] + 1;
+			PC <= PC + instruction[2:0];
 		end  else if(instruction[5:3] == kBNA && ~EQUAL) begin
 			PC <= LUT_out;
 		end else if (instruction[5:3] == kBNR && ~EQUAL) begin
-			PC <= PC + instruction[2:0] + 1;
+			PC <= PC + instruction[2:0];
 		end else if (instruction[5:3] === kBUN) begin
-			PC <= PC + LUT_out;
+			PC <= LUT_out;
+		end else if (instruction[5:3] === kBGT) begin
+			PC <= LUT_out;
 		end else begin
 			PC <= PC + 1;
 		end
